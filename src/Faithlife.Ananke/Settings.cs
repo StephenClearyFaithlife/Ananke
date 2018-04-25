@@ -28,12 +28,12 @@ namespace Faithlife.Ananke
 		/// <summary>
 		/// Creates an instance of <see cref="Settings"/>, with default settings for any setting not specified.
 		/// </summary>
-		/// <param name="consoleStringLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
+		/// <param name="consoleLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
-		public static Settings Create(IStringLogService consoleStringLogService = null,
+		public static Settings Create(IStringLogService consoleLogService = null,
 			IExitProcessService exitProcessService = null)
 		{
-			return new Settings(consoleStringLogService ?? new TextWriterStringLogService(Console.Out),
+			return new Settings(consoleLogService ?? new TextWriterStringLogService(Console.Out),
 				exitProcessService ?? new ExitProcessService());
 		}
 	}

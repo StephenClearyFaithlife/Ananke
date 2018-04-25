@@ -18,8 +18,9 @@ namespace Faithlife.Ananke
 		public Runner(Settings settings)
 	    {
 		    m_settings = settings;
-		    m_log = new TextWriterStringLogService(new EscapingStringLogTextWriter(m_settings.ConsoleLogService));
-			m_context = new Context(m_log);
+		    var escapingTextWriter = new EscapingStringLogTextWriter(m_settings.ConsoleLogService);
+			m_log = new TextWriterStringLogService(escapingTextWriter);
+			m_context = new Context(m_log, escapingTextWriter);
 	    }
 
 		/// <summary>

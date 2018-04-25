@@ -13,7 +13,7 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public static implicit operator Settings(StubbedSettings stubs)
 	    {
-			return Settings.Create(consoleStringLogService: stubs.StubStringLogService,
+			return Settings.Create(consoleLogService: stubs.StubStringLogService,
 				exitProcessService: stubs.StubExitProcessService);
 	    }
 	}

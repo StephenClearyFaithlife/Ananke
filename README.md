@@ -30,9 +30,25 @@ TODO: Describe the important parts of `Settings` and `Context`.
 
 Docker expects logs to be written to stdout (or stderr), with *one line per log message*.
 
-Ananke formats logs messages on a single line using backslash-escaping. It then writes the log messages to stdout through a logging service (see `IStringLogService`).
+Ananke formats logs messages on a single line using backslash-escaping. It then writes the log messages to stdout through a logging service (see `Settings.ConsoleLogService`).
 
-Ananke does *not* intercept any application-level logs by default. Any application logic that writes directly to the console is passed straight through.
+### Intercepting Console Stdout and Stderr
+
+Ananke does *not* intercept any application-level logs by default. Any direct console output from application logic is passed straight through. It is possible to redirect console output by calling `Context.HookConsoleOutputs` as such:
+
+```
+static void Main(string[] args) => Runner.Main(Settings.Create(), context =>
+{
+	context.InterceptConsoleOutputs();
+	Console.WriteLine("Hello\nWorld!"); // Reaches the console as one line, not two
+});
+```
+
+Please note that hooked console outputs *require* the use of `WriteLine`. Code such as this will not work:
+
+```
+Console.Write("Hello World!\n"); // Considered an incomplete message; not written to Console.
+```
 
 ## Exit Codes
 
