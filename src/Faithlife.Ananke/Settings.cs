@@ -9,16 +9,16 @@ namespace Faithlife.Ananke
 	/// </summary>
 	public sealed class Settings
     {
-	    private Settings(IStringLogService stringLogService, IExitProcessService exitProcessService)
+	    private Settings(IStringLogService consoleLogService, IExitProcessService exitProcessService)
 	    {
-			StringLogService = stringLogService;
+			ConsoleLogService = consoleLogService;
 			ExitProcessService = exitProcessService;
 	    }
 
 		/// <summary>
-		/// Service that writes strings to a log.
+		/// Service that writes strings to the console. The strings passed to this log will not contain EOL characters.
 		/// </summary>
-		public IStringLogService StringLogService { get; }
+		public IStringLogService ConsoleLogService { get; }
 
 		/// <summary>
 		/// Service that exits the entire process.
@@ -33,8 +33,7 @@ namespace Faithlife.Ananke
 		public static Settings Create(IStringLogService consoleStringLogService = null,
 			IExitProcessService exitProcessService = null)
 		{
-			consoleStringLogService = consoleStringLogService ?? new TextWriterStringLogService(Console.Out);
-			return new Settings(new TextWriterStringLogService(new EscapingStringLogTextWriter(consoleStringLogService)), 
+			return new Settings(consoleStringLogService ?? new TextWriterStringLogService(Console.Out),
 				exitProcessService ?? new ExitProcessService());
 		}
 	}

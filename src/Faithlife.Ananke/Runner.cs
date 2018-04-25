@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke
 {
@@ -17,11 +18,12 @@ namespace Faithlife.Ananke
 		public Runner(Settings settings)
 	    {
 		    m_settings = settings;
-			m_context = new Context();
+		    m_log = new TextWriterStringLogService(new EscapingStringLogTextWriter(m_settings.ConsoleLogService));
+			m_context = new Context(m_log);
 	    }
 
 		/// <summary>
-		/// Executes application logic within this wrapper. This method only returns if <see cref="Services.IExitProcessService.Exit"/> returns.
+		/// Executes application logic within this wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 		/// </summary>
 		/// <param name="action">The application logic to execute.</param>
 		public async Task<int> Run(Func<Context, Task<int>> action)
@@ -33,13 +35,13 @@ namespace Faithlife.Ananke
 		    }
 			catch (Exception ex)
 		    {
-				m_settings.StringLogService.WriteLine(ex.ToString());
+				m_log.WriteLine(ex.ToString());
 			    return m_settings.ExitProcessService.Exit(c_unexpectedExceptionExitCode);
 		    }
 	    }
 
 	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="Services.IExitProcessService.Exit"/> returns.
+	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 	    /// </summary>
 	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
 	    /// <param name="action">The application logic to execute.</param>
@@ -50,7 +52,7 @@ namespace Faithlife.Ananke
 	    }
 
 	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="Services.IExitProcessService.Exit"/> returns.
+	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 	    /// </summary>
 	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
 	    /// <param name="action">The application logic to execute.</param>
@@ -61,14 +63,14 @@ namespace Faithlife.Ananke
 	    });
 
 		/// <summary>
-		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="Services.IExitProcessService.Exit"/> returns.
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
 		public static int Main(Settings settings, Func<Context, int> action) => Main(settings, context => Task.FromResult(action(context))).GetAwaiter().GetResult();
 
 	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="Services.IExitProcessService.Exit"/> returns.
+	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 	    /// </summary>
 	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
 	    /// <param name="action">The application logic to execute.</param>
@@ -79,7 +81,8 @@ namespace Faithlife.Ananke
 	    });
 
 	    private readonly Settings m_settings;
-	    private readonly Context m_context;
+		private readonly IStringLogService m_log;
+		private readonly Context m_context;
 
 	    private const int c_unexpectedExceptionExitCode = 64;
     }
