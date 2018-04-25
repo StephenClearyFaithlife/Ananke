@@ -61,3 +61,6 @@ However, if the application logic returns an `int`, then that is used as the pro
 
 Exit codes are returned by Ananke even if you use `static void Main` as your entrypoint.
 
+## Signals
+
+Ananke listens to `SIGINT` (Ctrl-C) and `SIGTERM` (`docker stop`). When one of these signals is received, the `Context.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.

@@ -9,10 +9,12 @@ namespace Faithlife.Ananke
 	/// </summary>
 	public sealed class Settings
     {
-	    private Settings(IStringLogService consoleLogService, IExitProcessService exitProcessService)
+	    private Settings(IStringLogService consoleLogService, IExitProcessService exitProcessService, ISignalService sigintSignalService, ISignalService sigtermSignalService)
 	    {
 			ConsoleLogService = consoleLogService;
 			ExitProcessService = exitProcessService;
+		    SigintSignalService = sigintSignalService;
+		    SigtermSignalService = sigtermSignalService;
 	    }
 
 		/// <summary>
@@ -25,16 +27,30 @@ namespace Faithlife.Ananke
 		/// </summary>
 		public IExitProcessService ExitProcessService { get; }
 
+	    /// <summary>
+	    /// Service that hooks SIGINT.
+	    /// </summary>
+	    public ISignalService SigintSignalService { get; }
+
+	    /// <summary>
+	    /// Service that hooks SIGTERM.
+	    /// </summary>
+	    public ISignalService SigtermSignalService { get; }
+
 		/// <summary>
 		/// Creates an instance of <see cref="Settings"/>, with default settings for any setting not specified.
 		/// </summary>
 		/// <param name="consoleLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
-		public static Settings Create(IStringLogService consoleLogService = null,
-			IExitProcessService exitProcessService = null)
+		/// <param name="sigintSignalService">Service that hooks SIGINT.</param>
+		/// <param name="sigtermSignalService">Service that hooks SIGTERM.</param>
+		public static Settings Create(IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null,
+			ISignalService sigintSignalService = null, ISignalService sigtermSignalService = null)
 		{
 			return new Settings(consoleLogService ?? new TextWriterStringLogService(Console.Out),
-				exitProcessService ?? new ExitProcessService());
+				exitProcessService ?? new ExitProcessService(),
+				sigintSignalService ?? new SigintSignalService(),
+				sigtermSignalService ?? new SigtermSignalService());
 		}
 	}
 }

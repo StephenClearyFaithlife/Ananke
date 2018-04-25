@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Faithlife.Ananke.Services;
 
@@ -20,7 +21,8 @@ namespace Faithlife.Ananke
 		    m_settings = settings;
 		    var escapingTextWriter = new EscapingStringLogTextWriter(m_settings.ConsoleLogService);
 			m_log = new TextWriterStringLogService(escapingTextWriter);
-			m_context = new Context(m_log, escapingTextWriter);
+		    m_exitRequested = new CancellationTokenSource();
+			m_context = new Context(m_log, escapingTextWriter, m_exitRequested.Token);
 	    }
 
 		/// <summary>
@@ -31,6 +33,10 @@ namespace Faithlife.Ananke
 	    {
 		    try
 		    {
+			    // Hook SIGINT and SIGTERM
+			    m_settings.SigintSignalService.AddHandler(() => Shutdown("SIGINT received"));
+				m_settings.SigtermSignalService.AddHandler(() => Shutdown("SIGTERM received"));
+
 			    var result = await action(m_context).ConfigureAwait(false);
 			    return m_settings.ExitProcessService.Exit(result);
 		    }
@@ -81,10 +87,17 @@ namespace Faithlife.Ananke
 		    return 0;
 	    });
 
-	    private readonly Settings m_settings;
+	    private void Shutdown(string reason)
+	    {
+		    m_log.WriteLine("Shutting down: " + reason);
+		    m_exitRequested.Cancel();
+	    }
+
+		private readonly Settings m_settings;
 		private readonly IStringLogService m_log;
 		private readonly Context m_context;
+	    private readonly CancellationTokenSource m_exitRequested;
 
-	    private const int c_unexpectedExceptionExitCode = 64;
+		private const int c_unexpectedExceptionExitCode = 64;
     }
 }

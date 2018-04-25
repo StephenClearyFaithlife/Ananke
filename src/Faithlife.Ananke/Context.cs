@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke
@@ -16,10 +17,12 @@ namespace Faithlife.Ananke
 	    /// </summary>
 	    /// <param name="stringLog">The string log service. This service must escape EOL characters.</param>
 	    /// <param name="escapingTextWriter">An escaping text writer.</param>
-	    public Context(IStringLogService stringLog, TextWriter escapingTextWriter)
+	    /// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
+	    public Context(IStringLogService stringLog, TextWriter escapingTextWriter, CancellationToken exitRequested)
 		{
 			StringLog = stringLog;
 			m_escapingTextWriter = escapingTextWriter;
+			ExitRequested = exitRequested;
 		}
 
 		/// <summary>
@@ -27,10 +30,15 @@ namespace Faithlife.Ananke
 		/// </summary>
 		public IStringLogService StringLog { get; }
 
+	    /// <summary>
+	    /// The application has been requested to exit.
+	    /// </summary>
+	    public CancellationToken ExitRequested { get; }
+
 		/// <summary>
 		/// Intercepts writes to <see cref="Console.Out"/> and <see cref="Console.Error"/> with an EOL-escaping writer. This requires application code to use <c>WriteLine</c> in order to see an actual EOL.
 		/// </summary>
-	    public void InterceptConsoleOutputs()
+		public void InterceptConsoleOutputs()
 	    {
 			Console.WriteLine("Test");
 			Console.SetOut(m_escapingTextWriter);
