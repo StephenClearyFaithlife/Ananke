@@ -18,36 +18,38 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static Task<int> Main(Settings settings, Func<Context, Task<int>> action)
+		public static int Main(Settings settings, Func<Context, Task<int>> action)
 	    {
 		    var runner = new Runner(settings);
 		    return runner.Run(action);
 	    }
-
-	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
-	    /// </summary>
-	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
-	    /// <param name="action">The application logic to execute.</param>
-	    public static Task<int> Main(Settings settings, Func<Context, Task> action) => Main(settings, async context =>
-	    {
-		    await action(context).ConfigureAwait(false);
-		    return 0;
-	    });
 
 		/// <summary>
 		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static int Main(Settings settings, Func<Context, int> action) => Main(settings, context => Task.FromResult(action(context))).GetAwaiter().GetResult();
+		public static int Main(Settings settings, Func<Context, Task> action) => Main(settings, async context =>
+	    {
+		    await action(context).ConfigureAwait(false);
+		    return 0;
+	    });
 
-	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
-	    /// </summary>
-	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
-	    /// <param name="action">The application logic to execute.</param>
-	    public static int Main(Settings settings, Action<Context> action) => Main(settings, context =>
+#pragma warning disable 1998
+		/// <summary>
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// </summary>
+		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
+		/// <param name="action">The application logic to execute.</param>
+		public static int Main(Settings settings, Func<Context, int> action) => Main(settings, async context => action(context));
+#pragma warning restore
+
+		/// <summary>
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// </summary>
+		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
+		/// <param name="action">The application logic to execute.</param>
+		public static int Main(Settings settings, Action<Context> action) => Main(settings, context =>
 	    {
 		    action(context);
 		    return 0;
@@ -70,7 +72,7 @@ namespace Faithlife.Ananke
 	    /// Executes application logic within this wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 	    /// </summary>
 	    /// <param name="action">The application logic to execute.</param>
-	    private async Task<int> Run(Func<Context, Task<int>> action)
+	    private int Run(Func<Context, Task<int>> action)
 	    {
 		    try
 		    {
@@ -82,7 +84,8 @@ namespace Faithlife.Ananke
 				    m_done.Wait();
 			    });
 
-			    return m_settings.ExitProcessService.Exit(await action(m_context).ConfigureAwait(false));
+			    var exitCode = action(m_context).GetAwaiter().GetResult();
+			    return m_settings.ExitProcessService.Exit(exitCode);
 		    }
 		    catch (Exception ex)
 		    {
