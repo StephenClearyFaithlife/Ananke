@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Faithlife.Ananke.Services;
 
@@ -15,10 +16,15 @@ namespace Faithlife.Ananke.Tests.Util
 
 		public StubSignalService StubSigtermSignalService { get; } = new StubSignalService();
 
+		public StringWriter StubConsoleStdout { get; } = new StringWriter();
+
+		public StringWriter StubConsoleStderr { get; } = new StringWriter();
+
 	    public static implicit operator Settings(StubbedSettings stubs)
 	    {
 			return Settings.Create(consoleLogService: stubs.StubStringLogService, exitProcessService: stubs.StubExitProcessService,
-				sigintSignalService: stubs.StubSigintSignalService, sigtermSignalService: stubs.StubSigtermSignalService);
+				sigintSignalService: stubs.StubSigintSignalService, sigtermSignalService: stubs.StubSigtermSignalService,
+				consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
 	    }
 	}
 }

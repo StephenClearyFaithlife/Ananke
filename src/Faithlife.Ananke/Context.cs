@@ -12,17 +12,19 @@ namespace Faithlife.Ananke
 	/// </summary>
     public sealed class Context
     {
-	    /// <summary>
-	    /// Creates an execution context for application code.
-	    /// </summary>
-	    /// <param name="stringLog">The string log service. This service must escape EOL characters.</param>
-	    /// <param name="escapingTextWriter">An escaping text writer.</param>
-	    /// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
-	    public Context(IStringLogService stringLog, TextWriter escapingTextWriter, CancellationToken exitRequested)
+		/// <summary>
+		/// Creates an execution context for application code.
+		/// </summary>
+		/// <param name="stringLog">The string log service. This service must escape EOL characters.</param>
+		/// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
+		/// <param name="escapedConsoleStdout">An escaping text writer for stdout.</param>
+		/// <param name="escapedConsoleStderr">An escaping text writer for stderr.</param>
+		public Context(IStringLogService stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout, TextWriter escapedConsoleStderr)
 		{
 			StringLog = stringLog;
-			m_escapingTextWriter = escapingTextWriter;
 			ExitRequested = exitRequested;
+			EscapedConsoleStdout = escapedConsoleStdout;
+			EscapedConsoleStderr = escapedConsoleStderr;
 		}
 
 		/// <summary>
@@ -36,15 +38,13 @@ namespace Faithlife.Ananke
 	    public CancellationToken ExitRequested { get; }
 
 		/// <summary>
-		/// Intercepts writes to <see cref="Console.Out"/> and <see cref="Console.Error"/> with an EOL-escaping writer. This requires application code to use <c>WriteLine</c> in order to see an actual EOL.
+		/// A text writer that writes to <see cref="Console.Out"/> after backslash-escaping EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
 		/// </summary>
-		public void InterceptConsoleOutputs()
-	    {
-			Console.WriteLine("Test");
-			Console.SetOut(m_escapingTextWriter);
-			Console.SetError(m_escapingTextWriter);
-	    }
+		public TextWriter EscapedConsoleStdout { get; }
 
-		private readonly TextWriter m_escapingTextWriter;
+	    /// <summary>
+	    /// A text writer that writes to <see cref="Console.Error"/> after backslash-escaping EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
+	    /// </summary>
+	    public TextWriter EscapedConsoleStderr { get; }
     }
 }

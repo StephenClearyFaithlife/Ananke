@@ -22,7 +22,33 @@ There are two main aspects to this code:
 1. It creates a `Settings` object with the default settings.
 1. The application logic now receives a `Context` object with its execution context.
 
-TODO: Describe the important parts of `Settings` and `Context`.
+# Realistic Usage
+
+Your application logic should make use of `Context.ExitRequested`; it should stop taking on new work, finish processing the current work it already has, and then return. If it does not do this, then its processing will be aborted when the application exits.
+
+TODO: Describe the important parts of `Settings`.
+
+Taking this into account, a more realistic example of Ananke usage is:
+
+```
+using Faithlife.Ananke;
+
+class Program
+{
+	static void Main(string[] args) => Runner.Main(Settings.Create(), async context =>
+	{
+		while (!context.ExitRequested.IsCancellationRequested)
+		{
+			// Wait for the next work item to be available, and retrieve it.
+			// If we are requested to exit, then cancel the wait.
+			var workItem = await GetNextWorkItemAsync(context.ExitRequested);
+
+			// Process the work item. Ignore requests to exit.
+			ProcessWorkItem(workItem);
+		}
+	});
+}
+```
 
 # Doker Conventions
 
@@ -34,20 +60,22 @@ Ananke formats logs messages on a single line using backslash-escaping. It then 
 
 ### Intercepting Console Stdout and Stderr
 
-Ananke does *not* intercept any application-level logs by default. Any direct console output from application logic is passed straight through. It is possible to redirect console output by calling `Context.HookConsoleOutputs` as such:
+Ananke does *not* intercept any application-level logs by default. Any direct console output from application logic is passed straight through. It is possible to intercept console output as such:
 
 ```
 static void Main(string[] args) => Runner.Main(Settings.Create(), context =>
 {
-	context.InterceptConsoleOutputs();
-	Console.WriteLine("Hello\nWorld!"); // Reaches the console as one line, not two
+	Console.SetOut(context.EscapedConsoleStdout);
+	Console.SetError(context.EscapedConsoleStderr);
+
+	Console.WriteLine("Hello\nWorld!"); // Written to stdout as one line, not two
 });
 ```
 
-Please note that hooked console outputs *require* the use of `WriteLine`. Code such as this will not work:
+Please note that intercepted console outputs *require* the use of `WriteLine`. Code such as this will write `Hello World!\\n` to the console, not `Hello World!\n`, and will be interpreted by Docker as a log message that has not yet completed:
 
 ```
-Console.Write("Hello World!\n"); // Considered an incomplete message; not written to Console.
+Console.Write("Hello World!\n");
 ```
 
 ## Exit Codes
@@ -56,8 +84,7 @@ An Ananke process will return one of the following exit codes:
 
 * `0` - If the application logic returns without exception.
 * `64` - If the application logic threw an unhandled exception.
-
-However, if the application logic returns an `int`, then that is used as the process exit code.
+* (other) - If the application logic returns an `int`, then that value is used as the process exit code.
 
 Exit codes are returned by Ananke even if you use `static void Main` as your entrypoint.
 

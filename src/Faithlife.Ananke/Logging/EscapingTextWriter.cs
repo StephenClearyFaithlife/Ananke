@@ -1,48 +1,61 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Faithlife.Ananke.Services;
 
-namespace Faithlife.Ananke
+namespace Faithlife.Ananke.Logging
 {
 	/// <summary>
 	/// A text writer that backslash-escapes all CRs and LFs, and only outputs a <c>NewLine</c> when an explicit <c>WriteLine</c> is requested.
 	/// </summary>
-    public sealed class EscapingStringLogTextWriter: TextWriter
+    public sealed class EscapingTextWriter: TextWriter
 	{
 		/// <summary>
-		/// Creates a new text writer that writes to the given string log.
+		/// Creates a new text writer that writes to the given inner text writer.
 		/// </summary>
-		/// <param name="stringLog">The output string log.</param>
-		public EscapingStringLogTextWriter(IStringLogService stringLog)
+		/// <param name="writer">The wrapped text writer.</param>
+		public EscapingTextWriter(TextWriter writer)
 		{
-			m_stringLog = stringLog;
-			m_buffer = new StringBuilder();
+			m_writer = writer;
 		}
 
 		/// <inheritdoc/>
-		public override Encoding Encoding => Encoding.UTF8;
+		public override IFormatProvider FormatProvider => m_writer.FormatProvider;
+
+		/// <inheritdoc/>
+		public override string NewLine
+		{
+			get => m_writer.NewLine;
+			set => m_writer.NewLine = value;
+		}
+
+		/// <inheritdoc/>
+		public override Encoding Encoding => m_writer.Encoding;
+
+		/// <inheritdoc/>
+		public override void Flush() => m_writer.Flush();
+
+		/// <inheritdoc/>
+		public override Task FlushAsync() => m_writer.FlushAsync();
 
 		/// <inheritdoc/>
 		public override void Write(char value)
 		{
 			if (value == '\n')
-				m_buffer.Append("\\n");
+				m_writer.Write("\\n");
 			else if (value == '\r')
-				m_buffer.Append("\\r");
+				m_writer.Write("\\r");
 			else if (value == '\\')
-				m_buffer.Append("\\\\");
+				m_writer.Write("\\\\");
 			else
-				m_buffer.Append(value);
+				m_writer.Write(value);
 		}
 
 		/// <inheritdoc/>
 		public override void WriteLine()
 		{
-			m_stringLog.WriteLine(m_buffer.ToString());
-			m_buffer.Clear();
+			m_writer.WriteLine();
 		}
 
 		/// <inheritdoc/>
@@ -164,7 +177,6 @@ namespace Faithlife.Ananke
 			WriteLine();
 		}
 
-		private readonly IStringLogService m_stringLog;
-		private readonly StringBuilder m_buffer;
+		private readonly TextWriter m_writer;
 	}
 }

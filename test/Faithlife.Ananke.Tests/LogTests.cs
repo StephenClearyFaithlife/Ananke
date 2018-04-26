@@ -13,5 +13,21 @@ namespace Faithlife.Ananke.Tests
 		    Runner.Main(settings, (Action<Context>) (_ => throw new InvalidOperationException()));
 		    Assert.That(settings.StubStringLogService.Messages, Has.None.Contains("\n"));
 	    }
+
+	    [Test]
+	    public void EscapingStdout_EscapesEolCharacters()
+	    {
+			var settings = new StubbedSettings();
+		    Runner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
+			Assert.That(settings.StubConsoleStdout.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
+	    }
+
+	    [Test]
+	    public void EscapingStderr_EscapesEolCharacters()
+	    {
+		    var settings = new StubbedSettings();
+		    Runner.Main(settings, context => context.EscapedConsoleStderr.WriteLine("Test\nMessage"));
+		    Assert.That(settings.StubConsoleStderr.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
+	    }
 	}
 }
