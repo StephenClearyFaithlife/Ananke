@@ -105,6 +105,12 @@ namespace Faithlife.Ananke
 	    private void Shutdown(string reason)
 	    {
 		    m_log.WriteLine("Shutting down: " + reason);
+		    Task.Run(async () =>
+		    {
+			    await Task.Delay(m_settings.ExitTimeout);
+			    m_done.Set();
+			    m_settings.ExitProcessService.Exit(c_exitTimeoutExitCode);
+		    });
 		    m_exitRequested.Cancel();
 	    }
 
@@ -116,5 +122,6 @@ namespace Faithlife.Ananke
 
 	    private const int c_successExitCode = 0;
 		private const int c_unexpectedExceptionExitCode = 64;
+	    private const int c_exitTimeoutExitCode = 65;
     }
 }

@@ -118,5 +118,47 @@ namespace Faithlife.Ananke.Tests
 		    await task;
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.Zero);
 	    }
+
+	    [Test]
+	    public void Sigint_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
+	    {
+		    var settings = new StubbedSettings();
+
+		    var ready = new ManualResetEventSlim();
+			var finish = new ManualResetEventSlim();
+		    Task.Run(() => AnankeRunner.Main(settings, context =>
+		    {
+			    ready.Set();
+			    finish.Wait();
+		    }));
+		    ready.Wait();
+
+			settings.StubSigintSignalService.Invoke();
+		    Thread.Sleep(settings.StubExitTimeSpan * 2);
+			Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
+
+		    finish.Set();
+	    }
+
+	    [Test]
+	    public void Sigterm_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
+	    {
+		    var settings = new StubbedSettings();
+
+		    var ready = new ManualResetEventSlim();
+		    var finish = new ManualResetEventSlim();
+		    Task.Run(() => AnankeRunner.Main(settings, context =>
+		    {
+			    ready.Set();
+			    finish.Wait();
+		    }));
+		    ready.Wait();
+
+		    Task.Run(() => settings.StubSigtermSignalService.Invoke());
+		    Thread.Sleep(settings.StubExitTimeSpan * 2);
+		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
+
+		    finish.Set();
+	    }
     }
 }
