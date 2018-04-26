@@ -32,7 +32,7 @@ namespace Faithlife.Ananke
 		public static int Main(AnankeSettings settings, Func<AnankeContext, Task> action) => Main(settings, async context =>
 	    {
 		    await action(context).ConfigureAwait(false);
-		    return 0;
+		    return c_successExitCode;
 	    });
 
 #pragma warning disable 1998
@@ -52,7 +52,7 @@ namespace Faithlife.Ananke
 		public static int Main(AnankeSettings settings, Action<AnankeContext> action) => Main(settings, context =>
 	    {
 		    action(context);
-		    return 0;
+		    return c_successExitCode;
 	    });
 
 	    /// <summary>
@@ -87,6 +87,11 @@ namespace Faithlife.Ananke
 			    var exitCode = action(m_context).GetAwaiter().GetResult();
 			    return m_settings.ExitProcessService.Exit(exitCode);
 		    }
+		    catch (OperationCanceledException) when (m_exitRequested.IsCancellationRequested)
+		    {
+			    m_log.WriteLine("Ignoring OperationCanceledException since we are shutting down.");
+			    return m_settings.ExitProcessService.Exit(c_successExitCode);
+		    }
 		    catch (Exception ex)
 		    {
 			    m_log.WriteLine(ex.ToString());
@@ -109,6 +114,7 @@ namespace Faithlife.Ananke
 	    private readonly CancellationTokenSource m_exitRequested;
 	    private readonly ManualResetEventSlim m_done;
 
+	    private const int c_successExitCode = 0;
 		private const int c_unexpectedExceptionExitCode = 64;
     }
 }

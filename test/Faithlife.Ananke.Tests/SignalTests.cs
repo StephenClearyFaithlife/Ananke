@@ -80,5 +80,43 @@ namespace Faithlife.Ananke.Tests
 		    await mainTask;
 		    await signalTask;
 	    }
+
+	    [Test]
+	    public async Task ExitRequestedCancellationException_WhenExitRequested_IsTreatedAsNormalException()
+	    {
+			var settings = new StubbedSettings();
+			var ready = new ManualResetEventSlim();
+		    var task = Task.Run(() => AnankeRunner.Main(settings, async context =>
+		    {
+			    ready.Set();
+			    await Task.Delay(Timeout.InfiniteTimeSpan, context.ExitRequested);
+		    }));
+		    ready.Wait();
+
+			settings.StubSigintSignalService.Invoke();
+
+		    await task;
+			Assert.That(settings.StubExitProcessService.ExitCode, Is.Zero);
+	    }
+
+	    [Test]
+	    public async Task LinkedCancellationException_WhenExitRequested_IsTreatedAsNormalException()
+	    {
+		    var settings = new StubbedSettings();
+		    var ready = new ManualResetEventSlim();
+		    var task = Task.Run(() => AnankeRunner.Main(settings, async context =>
+		    {
+			    ready.Set();
+				var otherCts = new CancellationTokenSource();
+			    var cts = CancellationTokenSource.CreateLinkedTokenSource(context.ExitRequested, otherCts.Token);
+			    await Task.Delay(Timeout.InfiniteTimeSpan, cts.Token);
+		    }));
+		    ready.Wait();
+
+		    settings.StubSigintSignalService.Invoke();
+
+		    await task;
+		    Assert.That(settings.StubExitProcessService.ExitCode, Is.Zero);
+	    }
     }
 }
