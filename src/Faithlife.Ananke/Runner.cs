@@ -23,6 +23,7 @@ namespace Faithlife.Ananke
 			m_log = new TextWriterStringLogService(escapingTextWriter);
 		    m_exitRequested = new CancellationTokenSource();
 			m_context = new Context(m_log, escapingTextWriter, m_exitRequested.Token);
+			m_done = new ManualResetEventSlim();
 	    }
 
 		/// <summary>
@@ -30,29 +31,36 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="action">The application logic to execute.</param>
 		public async Task<int> Run(Func<Context, Task<int>> action)
-	    {
+		{
 		    try
 		    {
 			    // Hook SIGINT and SIGTERM
 			    m_settings.SigintSignalService.AddHandler(() => Shutdown("SIGINT received"));
-				m_settings.SigtermSignalService.AddHandler(() => Shutdown("SIGTERM received"));
+			    m_settings.SigtermSignalService.AddHandler(() =>
+			    {
+				    Shutdown("SIGTERM received");
+				    m_done.Wait();
+			    });
 
-			    var result = await action(m_context).ConfigureAwait(false);
-			    return m_settings.ExitProcessService.Exit(result);
+			    return m_settings.ExitProcessService.Exit(await action(m_context).ConfigureAwait(false));
 		    }
-			catch (Exception ex)
+		    catch (Exception ex)
 		    {
-				m_log.WriteLine(ex.ToString());
+			    m_log.WriteLine(ex.ToString());
 			    return m_settings.ExitProcessService.Exit(c_unexpectedExceptionExitCode);
+		    }
+		    finally
+		    {
+			    m_done.Set();
 		    }
 	    }
 
-	    /// <summary>
-	    /// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
-	    /// </summary>
-	    /// <param name="settings">The settings to use for the Ananke wrapper.</param>
-	    /// <param name="action">The application logic to execute.</param>
-	    public static Task<int> Main(Settings settings, Func<Context, Task<int>> action)
+		/// <summary>
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// </summary>
+		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
+		/// <param name="action">The application logic to execute.</param>
+		public static Task<int> Main(Settings settings, Func<Context, Task<int>> action)
 	    {
 		    var runner = new Runner(settings);
 		    return runner.Run(action);
@@ -97,6 +105,7 @@ namespace Faithlife.Ananke
 		private readonly IStringLogService m_log;
 		private readonly Context m_context;
 	    private readonly CancellationTokenSource m_exitRequested;
+	    private readonly ManualResetEventSlim m_done;
 
 		private const int c_unexpectedExceptionExitCode = 64;
     }
