@@ -7,7 +7,7 @@ namespace Faithlife.Ananke
 	/// <summary>
 	/// Settings used to control Ananke behavior.
 	/// </summary>
-	public sealed class Settings
+	public sealed class AnankeSettings
     {
 		/// <summary>
 		/// Service that writes strings to the console. The strings passed to this log will not contain EOL characters.
@@ -40,7 +40,7 @@ namespace Faithlife.Ananke
 		public TextWriter ConsoleStderr { get; }
 
 		/// <summary>
-		/// Creates an instance of <see cref="Settings"/>, with default settings for any setting not specified.
+		/// Creates an instance of <see cref="AnankeSettings"/>, with default settings for any setting not specified.
 		/// </summary>
 		/// <param name="consoleLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
@@ -48,11 +48,11 @@ namespace Faithlife.Ananke
 		/// <param name="sigtermSignalService">Service that hooks SIGTERM.</param>
 		/// <param name="consoleStdout">The standard output stream.</param>
 		/// <param name="consoleStderr">The standard error stream.</param>
-		public static Settings Create(IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null,
+		public static AnankeSettings Create(IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null,
 			ISignalService sigintSignalService = null, ISignalService sigtermSignalService = null, TextWriter consoleStdout = null, TextWriter consoleStderr = null)
 		{
 			consoleStdout = consoleStdout ?? Console.Out;
-			return new Settings(consoleLogService ?? new TextWriterStringLogService(consoleStdout),
+			return new AnankeSettings(consoleLogService ?? new TextWriterStringLogService(consoleStdout),
 				exitProcessService ?? new ExitProcessService(),
 				sigintSignalService ?? new SigintSignalService(),
 				sigtermSignalService ?? new SigtermSignalService(),
@@ -60,7 +60,7 @@ namespace Faithlife.Ananke
 				consoleStderr ?? Console.Error);
 		}
 
-	    private Settings(IStringLogService consoleLogService, IExitProcessService exitProcessService, ISignalService sigintSignalService, ISignalService sigtermSignalService, TextWriter consoleStdout, TextWriter consoleStderr)
+	    private AnankeSettings(IStringLogService consoleLogService, IExitProcessService exitProcessService, ISignalService sigintSignalService, ISignalService sigtermSignalService, TextWriter consoleStdout, TextWriter consoleStderr)
 	    {
 		    ConsoleLogService = consoleLogService;
 		    ExitProcessService = exitProcessService;

@@ -10,7 +10,7 @@ namespace Faithlife.Ananke.Tests
 	    public void ExceptionLogging_EscapesEolCharacters()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, (Action<Context>) (_ => throw new InvalidOperationException()));
+		    AnankeRunner.Main(settings, (Action<AnankeContext>) (_ => throw new InvalidOperationException()));
 		    Assert.That(settings.StubStringLogService.Messages, Has.None.Contains("\n"));
 	    }
 
@@ -18,7 +18,7 @@ namespace Faithlife.Ananke.Tests
 	    public void EscapingStdout_EscapesEolCharacters()
 	    {
 			var settings = new StubbedSettings();
-		    Runner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
+		    AnankeRunner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
 			Assert.That(settings.StubConsoleStdout.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
 	    }
 
@@ -26,7 +26,7 @@ namespace Faithlife.Ananke.Tests
 	    public void EscapingStderr_EscapesEolCharacters()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, context => context.EscapedConsoleStderr.WriteLine("Test\nMessage"));
+		    AnankeRunner.Main(settings, context => context.EscapedConsoleStderr.WriteLine("Test\nMessage"));
 		    Assert.That(settings.StubConsoleStderr.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
 	    }
 	}

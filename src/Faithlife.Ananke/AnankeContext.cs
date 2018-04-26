@@ -10,7 +10,7 @@ namespace Faithlife.Ananke
 	/// <summary>
 	/// The execution context for the application.
 	/// </summary>
-    public sealed class Context
+    public sealed class AnankeContext
     {
 		/// <summary>
 		/// Creates an execution context for application code.
@@ -19,7 +19,7 @@ namespace Faithlife.Ananke
 		/// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
 		/// <param name="escapedConsoleStdout">An escaping text writer for stdout.</param>
 		/// <param name="escapedConsoleStderr">An escaping text writer for stderr.</param>
-		public Context(IStringLogService stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout, TextWriter escapedConsoleStderr)
+		public AnankeContext(IStringLogService stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout, TextWriter escapedConsoleStderr)
 		{
 			StringLog = stringLog;
 			ExitRequested = exitRequested;
@@ -28,7 +28,7 @@ namespace Faithlife.Ananke
 		}
 
 		/// <summary>
-		/// Service that writes strings to a log. You may send messages that contain EOL characters to this instance; they will be escaped before they are passed to <see cref="Settings.ConsoleLogService"/>.
+		/// Service that writes strings to a log. You may send messages that contain EOL characters to this instance; they will be escaped before they are passed to <see cref="AnankeSettings.ConsoleLogService"/>.
 		/// </summary>
 		public IStringLogService StringLog { get; }
 

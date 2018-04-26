@@ -10,7 +10,7 @@ namespace Faithlife.Ananke.Tests
         public void Main_ExecutesAction()
         {
 	        var executed = false;
-	        Runner.Main(new StubbedSettings(), _ =>
+	        AnankeRunner.Main(new StubbedSettings(), _ =>
 	        {
 		        executed = true;
 	        });
@@ -21,7 +21,7 @@ namespace Faithlife.Ananke.Tests
 	    public void ExitCode_WhenActionSpecifiesReturnValue_IsActionReturnValue()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, _ => 13);
+		    AnankeRunner.Main(settings, _ => 13);
 			Assert.That(settings.StubExitProcessService.ExitCode, Is.Not.Null);
 			Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(13));
 	    }
@@ -30,7 +30,7 @@ namespace Faithlife.Ananke.Tests
 	    public void ExitCode_WhenActionHasNoReturnValue_IsZero()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, _ => { });
+		    AnankeRunner.Main(settings, _ => { });
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.Not.Null);
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(0));
 	    }
@@ -39,7 +39,7 @@ namespace Faithlife.Ananke.Tests
 	    public void Action_ThrowsException_IsTranslatedIntoExitCode64()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, (Action<Context>) (_ => throw new InvalidOperationException()));
+		    AnankeRunner.Main(settings, (Action<AnankeContext>) (_ => throw new InvalidOperationException()));
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.Not.Null);
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(64));
 	    }
@@ -48,7 +48,7 @@ namespace Faithlife.Ananke.Tests
 	    public void Action_ThrowsException_IsLogged()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, (Action<Context>)(_ => throw new InvalidOperationException("Test message")));
+		    AnankeRunner.Main(settings, (Action<AnankeContext>)(_ => throw new InvalidOperationException("Test message")));
 			Assert.That(settings.StubStringLogService.Messages, Has.Some.Contains("Test message"));
 	    }
 
@@ -56,7 +56,7 @@ namespace Faithlife.Ananke.Tests
 	    public void Action_ThrowsInnerException_IsLogged()
 	    {
 		    var settings = new StubbedSettings();
-		    Runner.Main(settings, (Action<Context>)(_ => throw new InvalidOperationException("Outer message", new InvalidOperationException("Test message"))));
+		    AnankeRunner.Main(settings, (Action<AnankeContext>)(_ => throw new InvalidOperationException("Outer message", new InvalidOperationException("Test message"))));
 		    Assert.That(settings.StubStringLogService.Messages, Has.Some.Contains("Test message"));
 	    }
 	}

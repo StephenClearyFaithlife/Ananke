@@ -18,7 +18,7 @@ namespace Faithlife.Ananke.Tests
 			var ready = new ManualResetEvent(false);
 			var finish = new ManualResetEvent(false);
 		    CancellationToken exitRequested;
-		    Task.Run(() => Runner.Main(settings, context =>
+		    Task.Run(() => AnankeRunner.Main(settings, context =>
 		    {
 			    exitRequested = context.ExitRequested;
 			    ready.Set();
@@ -41,7 +41,7 @@ namespace Faithlife.Ananke.Tests
 		    var finish = new ManualResetEvent(false);
 			var cancellationTokenSourceSet = new ManualResetEvent(false);
 		    CancellationToken exitRequested;
-		    Task.Run(() => Runner.Main(settings, context =>
+		    Task.Run(() => AnankeRunner.Main(settings, context =>
 		    {
 			    exitRequested = context.ExitRequested;
 			    ready.Set();
@@ -64,7 +64,7 @@ namespace Faithlife.Ananke.Tests
 
 		    var ready = new ManualResetEvent(false);
 		    var finish = new ManualResetEvent(false);
-		    var mainTask = Task.Run(() => Runner.Main(settings, context =>
+		    var mainTask = Task.Run(() => AnankeRunner.Main(settings, context =>
 		    {
 			    ready.Set();
 			    finish.WaitOne();

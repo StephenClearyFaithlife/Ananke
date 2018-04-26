@@ -9,18 +9,18 @@ using Faithlife.Ananke.Services;
 namespace Faithlife.Ananke
 {
 	/// <summary>
-	/// The Ananke wrapper around your code. Normally, you should call the static <see cref="O:Faithlife.Ananke.Runner.Main"/> method rather than create instances of this type directly.
+	/// The Ananke wrapper around your code. Normally, you should call the static <see cref="O:Faithlife.Ananke.AnankeRunner.Main"/> method rather than create instances of this type directly.
 	/// </summary>
-    public sealed class Runner
+    public sealed class AnankeRunner
     {
 		/// <summary>
 		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static int Main(Settings settings, Func<Context, Task<int>> action)
+		public static int Main(AnankeSettings settings, Func<AnankeContext, Task<int>> action)
 	    {
-		    var runner = new Runner(settings);
+		    var runner = new AnankeRunner(settings);
 		    return runner.Run(action);
 	    }
 
@@ -29,7 +29,7 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static int Main(Settings settings, Func<Context, Task> action) => Main(settings, async context =>
+		public static int Main(AnankeSettings settings, Func<AnankeContext, Task> action) => Main(settings, async context =>
 	    {
 		    await action(context).ConfigureAwait(false);
 		    return 0;
@@ -41,7 +41,7 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static int Main(Settings settings, Func<Context, int> action) => Main(settings, async context => action(context));
+		public static int Main(AnankeSettings settings, Func<AnankeContext, int> action) => Main(settings, async context => action(context));
 #pragma warning restore
 
 		/// <summary>
@@ -49,7 +49,7 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
-		public static int Main(Settings settings, Action<Context> action) => Main(settings, context =>
+		public static int Main(AnankeSettings settings, Action<AnankeContext> action) => Main(settings, context =>
 	    {
 		    action(context);
 		    return 0;
@@ -59,12 +59,12 @@ namespace Faithlife.Ananke
 	    /// Creates an Ananke wrapper with the specified settings.
 	    /// </summary>
 	    /// <param name="settings">The settings to use.</param>
-	    private Runner(Settings settings)
+	    private AnankeRunner(AnankeSettings settings)
 	    {
 		    m_settings = settings;
 		    m_log = new EscapingStringLog(m_settings.ConsoleLogService);
 		    m_exitRequested = new CancellationTokenSource();
-		    m_context = new Context(m_log, m_exitRequested.Token, new EscapingTextWriter(m_settings.ConsoleStdout), new EscapingTextWriter(m_settings.ConsoleStderr));
+		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new EscapingTextWriter(m_settings.ConsoleStdout), new EscapingTextWriter(m_settings.ConsoleStderr));
 		    m_done = new ManualResetEventSlim();
 	    }
 
@@ -72,7 +72,7 @@ namespace Faithlife.Ananke
 	    /// Executes application logic within this wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
 	    /// </summary>
 	    /// <param name="action">The application logic to execute.</param>
-	    private int Run(Func<Context, Task<int>> action)
+	    private int Run(Func<AnankeContext, Task<int>> action)
 	    {
 		    try
 		    {
@@ -103,9 +103,9 @@ namespace Faithlife.Ananke
 		    m_exitRequested.Cancel();
 	    }
 
-		private readonly Settings m_settings;
+		private readonly AnankeSettings m_settings;
 		private readonly IStringLogService m_log;
-		private readonly Context m_context;
+		private readonly AnankeContext m_context;
 	    private readonly CancellationTokenSource m_exitRequested;
 	    private readonly ManualResetEventSlim m_done;
 

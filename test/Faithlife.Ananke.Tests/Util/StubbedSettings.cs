@@ -20,9 +20,9 @@ namespace Faithlife.Ananke.Tests.Util
 
 		public StringWriter StubConsoleStderr { get; } = new StringWriter();
 
-	    public static implicit operator Settings(StubbedSettings stubs)
+	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
-			return Settings.Create(consoleLogService: stubs.StubStringLogService, exitProcessService: stubs.StubExitProcessService,
+			return AnankeSettings.Create(consoleLogService: stubs.StubStringLogService, exitProcessService: stubs.StubExitProcessService,
 				sigintSignalService: stubs.StubSigintSignalService, sigtermSignalService: stubs.StubSigtermSignalService,
 				consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
 	    }
