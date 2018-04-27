@@ -53,6 +53,8 @@ class Program
 }
 ```
 
+The actual shutdown time is randomly "fuzzed" a bit by default (see `AnankeSettings.RandomMaximumRuntimeRelativeDelta`). The default value for this is `0.2` (i.e., 20%), so the *actual* maximum runtime of the code above will vary by 24 minutes (20% of 2 hours), and be a random value between 1:36 and 2:24. This is just to avoid all applications from exiting at the exact same time, even if they were all started at the same time.
+
 # Doker Conventions
 
 ## Exit Codes

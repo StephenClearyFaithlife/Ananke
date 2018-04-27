@@ -111,8 +111,16 @@ namespace Faithlife.Ananke
 		/// </summary>
 	    private async void ShutdownAfterMaximumRuntime()
 	    {
-		    await Task.Delay(m_settings.MaximumRuntime);
-		    Shutdown($"Maximum runtime of {m_settings.MaximumRuntime} reached.");
+			// Determine the actual maximum runtime
+		    var delta = m_settings.RandomMaximumRuntimeRelativeDelta * m_settings.MaximumRuntime.Ticks;
+			var maxValue = m_settings.MaximumRuntime.Ticks + delta;
+			var minValue = m_settings.MaximumRuntime.Ticks - delta;
+		    var randomizedValue = new Random().NextDouble() * (maxValue - minValue) + minValue;
+		    var shutdownAfter = TimeSpan.FromTicks(unchecked((long)randomizedValue));
+
+		    m_log.WriteLine($"Maximum runtime set to {shutdownAfter}.");
+		    await Task.Delay(shutdownAfter);
+		    Shutdown($"Maximum runtime of {shutdownAfter} reached.");
 	    }
 
 		/// <summary>
