@@ -10,20 +10,27 @@ namespace Faithlife.Ananke.Services
 	public interface IExitProcessService
 	{
 		/// <summary>
-		/// Exit the entire process. This method may or may not return. If it returns, it will return the exit code.
+		/// Gets or sets the exit code for the process.
 		/// </summary>
-		/// <param name="exitCode">The exit code to pass to the operating system.</param>
-		int Exit(int exitCode);
+		int ExitCode { get; set; }
+
+		/// <summary>
+		/// Exits the process with exit code <see cref="ExitCode"/>. This method may or may not return.
+		/// </summary>
+		void Exit();
 	}
 
 	/// <inheritdoc/>
     public sealed class ExitProcessService: IExitProcessService
 	{
 		/// <inheritdoc/>
-	    public int Exit(int exitCode)
-	    {
-		    Environment.Exit(exitCode);
-		    return exitCode;
-	    }
-    }
+		public int ExitCode
+		{
+			get => Environment.ExitCode;
+			set => Environment.ExitCode = value;
+		}
+
+		/// <inheritdoc/>
+		public void Exit() => Environment.Exit(ExitCode);
+	}
 }

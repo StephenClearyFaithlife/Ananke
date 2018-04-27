@@ -7,12 +7,10 @@ namespace Faithlife.Ananke.Tests.Util
 {
     public sealed class StubExitProcessService : IExitProcessService
     {
-		public int? ExitCode { get; private set; }
+		public int ExitCode { get; set; }
 
-	    public int Exit(int exitCode)
+	    public void Exit()
 	    {
-		    ExitCode = exitCode;
-		    return exitCode;
 	    }
     }
 }

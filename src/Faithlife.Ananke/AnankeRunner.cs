@@ -14,7 +14,7 @@ namespace Faithlife.Ananke
     public sealed class AnankeRunner
     {
 		/// <summary>
-		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
@@ -25,7 +25,7 @@ namespace Faithlife.Ananke
 	    }
 
 		/// <summary>
-		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
@@ -37,7 +37,7 @@ namespace Faithlife.Ananke
 
 #pragma warning disable 1998
 		/// <summary>
-		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
@@ -45,7 +45,7 @@ namespace Faithlife.Ananke
 #pragma warning restore
 
 		/// <summary>
-		/// Creates an Ananke wrapper and executes the application logic within that wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+		/// Creates an Ananke wrapper and executes the application logic within that wrapper.
 		/// </summary>
 		/// <param name="settings">The settings to use for the Ananke wrapper.</param>
 		/// <param name="action">The application logic to execute.</param>
@@ -66,10 +66,11 @@ namespace Faithlife.Ananke
 		    m_exitRequested = new CancellationTokenSource();
 		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new EscapingTextWriter(m_settings.ConsoleStdout), new EscapingTextWriter(m_settings.ConsoleStderr));
 		    m_done = new ManualResetEventSlim();
+			m_exitCodeMutex = new object();
 	    }
 
 	    /// <summary>
-	    /// Executes application logic within this wrapper. This method only returns if <see cref="IExitProcessService.Exit"/> returns.
+	    /// Executes application logic within this wrapper.
 	    /// </summary>
 	    /// <param name="action">The application logic to execute.</param>
 	    private int Run(Func<AnankeContext, Task<int>> action)
@@ -88,21 +89,36 @@ namespace Faithlife.Ananke
 				ShutdownAfterMaximumRuntime();
 
 			    var exitCode = action(m_context).GetAwaiter().GetResult();
-			    return m_settings.ExitProcessService.Exit(exitCode);
+				SetExitCode(exitCode);
+			    return exitCode;
 		    }
 		    catch (OperationCanceledException) when (m_exitRequested.IsCancellationRequested)
 		    {
 			    m_log.WriteLine("Ignoring OperationCanceledException since we are shutting down.");
-			    return m_settings.ExitProcessService.Exit(c_successExitCode);
+			    return c_successExitCode;
 		    }
 		    catch (Exception ex)
 		    {
 			    m_log.WriteLine(ex.ToString());
-			    return m_settings.ExitProcessService.Exit(c_unexpectedExceptionExitCode);
+				SetExitCode(c_unexpectedExceptionExitCode);
+			    return c_unexpectedExceptionExitCode;
 		    }
 		    finally
 		    {
 			    m_done.Set();
+		    }
+	    }
+
+		/// <summary>
+		/// Sets the exit code for the process if it has not already been set. If the exit code has already been set, then this method does nothing.
+		/// </summary>
+		/// <param name="exitCode">The exit code.</param>
+	    private void SetExitCode(int exitCode)
+	    {
+		    lock (m_exitCodeMutex)
+		    {
+			    if (m_settings.ExitProcessService.ExitCode == 0)
+				    m_settings.ExitProcessService.ExitCode = exitCode;
 		    }
 	    }
 
@@ -145,7 +161,8 @@ namespace Faithlife.Ananke
 
 			await Task.Delay(m_settings.ExitTimeout);
 			m_done.Set();
-			m_settings.ExitProcessService.Exit(c_exitTimeoutExitCode);
+			SetExitCode(c_exitTimeoutExitCode);
+			m_settings.ExitProcessService.Exit();
 	    }
 
 		private readonly AnankeSettings m_settings;
@@ -153,6 +170,7 @@ namespace Faithlife.Ananke
 		private readonly AnankeContext m_context;
 	    private readonly CancellationTokenSource m_exitRequested;
 	    private readonly ManualResetEventSlim m_done;
+	    private readonly object m_exitCodeMutex;
 
 	    private const int c_successExitCode = 0;
 		private const int c_unexpectedExceptionExitCode = 64;
