@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke
@@ -9,6 +10,11 @@ namespace Faithlife.Ananke
 	/// </summary>
 	public sealed class AnankeSettings
     {
+		/// <summary>
+		/// The maximum amount of time the application will run.
+		/// </summary>
+		public TimeSpan MaximumRuntime { get; }
+
 		/// <summary>
 		/// The amonut of time application code has after it is requested to exit, before the process forcibly exits.
 		/// </summary>
@@ -47,6 +53,7 @@ namespace Faithlife.Ananke
 		/// <summary>
 		/// Creates an instance of <see cref="AnankeSettings"/>, with default settings for any setting not specified.
 		/// </summary>
+		/// <param name="maximumRuntime">The amonut of time application code should run until it is requested to exit. Defaults to infinite, but most apps should use a non-infinite time.</param>
 		/// <param name="exitTimeout">The amonut of time application code has after it is requested to exit, before the process forcibly exits. Defaults to 10 seconds.</param>
 		/// <param name="consoleLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
@@ -54,11 +61,13 @@ namespace Faithlife.Ananke
 		/// <param name="sigtermSignalService">Service that hooks SIGTERM.</param>
 		/// <param name="consoleStdout">The standard output stream.</param>
 		/// <param name="consoleStderr">The standard error stream.</param>
-		public static AnankeSettings Create(TimeSpan? exitTimeout = null, IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null,
-			ISignalService sigintSignalService = null, ISignalService sigtermSignalService = null, TextWriter consoleStdout = null, TextWriter consoleStderr = null)
+		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, TimeSpan? exitTimeout = null, IStringLogService consoleLogService = null,
+			IExitProcessService exitProcessService = null, ISignalService sigintSignalService = null, ISignalService sigtermSignalService = null,
+			TextWriter consoleStdout = null, TextWriter consoleStderr = null)
 		{
 			consoleStdout = consoleStdout ?? Console.Out;
-			return new AnankeSettings(exitTimeout ?? TimeSpan.FromSeconds(10),
+			return new AnankeSettings(maximumRuntime ?? Timeout.InfiniteTimeSpan,
+				exitTimeout ?? TimeSpan.FromSeconds(10),
 				consoleLogService ?? new TextWriterStringLogService(consoleStdout),
 				exitProcessService ?? new ExitProcessService(),
 				sigintSignalService ?? new SigintSignalService(),
@@ -67,9 +76,10 @@ namespace Faithlife.Ananke
 				consoleStderr ?? Console.Error);
 		}
 
-	    private AnankeSettings(TimeSpan exitTimeout, IStringLogService consoleLogService, IExitProcessService exitProcessService, ISignalService sigintSignalService,
-		    ISignalService sigtermSignalService, TextWriter consoleStdout, TextWriter consoleStderr)
+	    private AnankeSettings(TimeSpan maximumRuntime, TimeSpan exitTimeout, IStringLogService consoleLogService, IExitProcessService exitProcessService,
+		    ISignalService sigintSignalService, ISignalService sigtermSignalService, TextWriter consoleStdout, TextWriter consoleStderr)
 	    {
+			MaximumRuntime = maximumRuntime;
 		    ExitTimeout = exitTimeout;
 		    ConsoleLogService = consoleLogService;
 		    ExitProcessService = exitProcessService;

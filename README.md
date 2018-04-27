@@ -17,25 +17,28 @@ class Program
 }
 ```
 
-There are two main aspects to this code:
+There are three Ananke types used in this code:
 
-1. It creates an `AnankeSettings` object with the default settings.
+1. The code creates an `AnankeSettings` object with the default settings. These settings control how Ananke behaves.
+1. The code invokes `AnankeRunner.Main`, passing it the settings object and delegate representing the application logic.
 1. The application logic now receives an `AnankeContext` object with its execution context.
 
 # Realistic Usage
 
-Your application logic should make use of `AnankeContext.ExitRequested`; it should stop taking on new work, finish processing the current work it already has, and then return. If it does not do this, then its processing will be aborted when the application exits.
+Ananke passes a `CancellationToken` to your application logic called `AnankeContext.ExitRequested`. This token is cancelled whenever your application is requested to shut down. When `ExitRequested` is cancelled, your application logic should stop taking on new work, finish processing the current work it already has, and then return. If it does not do this, then its processing will be aborted when the application exits.
 
-TODO: Describe the important parts of `AnankeSettings`.
+Also, you should strongly consider setting `AnankeSettings.MaximumRuntime`. Giving this property a reasonable value will ensure your application will exit after a maximum amount of time. If your application is being orchestrated (e.g., in a Kubernetes Deployment), then you can set `MaximumRuntime` to create a "phoenix service" - one that periodically exits of its own free will and is then reborn by the orchestrator.
 
-Taking this into account, a more realistic example of Ananke usage is:
+Taking these aspects into account, a more realistic example of Ananke usage is:
 
 ```
 using Faithlife.Ananke;
 
 class Program
 {
-	static void Main(string[] args) => AnankeRunner.Main(AnankeSettings.Create(), async context =>
+	private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromHours(2));
+
+	static void Main(string[] args) => AnankeRunner.Main(Settings, async context =>
 	{
 		while (!context.ExitRequested.IsCancellationRequested)
 		{
@@ -57,7 +60,7 @@ class Program
 An Ananke process will return one of the following exit codes:
 
 * `0` - If the application logic returns without exception.
-* `64` - If the application logic threw an unhandled exception.
+* `64` - If the application logic threw an unhandled exception. Unhandled exceptions are logged before the process exits.
 * `65` - If the application logic was requested to shutdown, but did not do so within the exit timeout (see `AnankeSettings.ExitTimeout`).
 * (other) - If the application logic returns an `int`, then that value is used as the process exit code.
 
@@ -65,7 +68,7 @@ Exit codes are returned by Ananke even if you use `static void Main` as your ent
 
 ## Signals
 
-Ananke listens to `SIGINT` (Ctrl-C) and `SIGTERM` (`docker stop`). When one of these signals is received, the `AnankeContext.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.
+Ananke listens to `SIGINT` (`Ctrl-C`) and `SIGTERM` (`docker stop`). When one of these signals is received, the `AnankeContext.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.
 
 Both `SIGINT` and `SIGTERM` are treated as graceful stop requests. However, for both signals, Ananke will start a kill timer (see `AnankeSettings.ExitTimeout`). If the application code has not returned within that timeout, Ananke will exit the process with exit code `65`.
 

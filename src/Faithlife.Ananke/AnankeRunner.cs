@@ -77,12 +77,15 @@ namespace Faithlife.Ananke
 		    try
 		    {
 			    // Hook SIGINT and SIGTERM
-			    m_settings.SigintSignalService.AddHandler(() => Shutdown("SIGINT received"));
+			    m_settings.SigintSignalService.AddHandler(() => Shutdown("SIGINT received."));
 			    m_settings.SigtermSignalService.AddHandler(() =>
 			    {
-				    Shutdown("SIGTERM received");
+				    Shutdown("SIGTERM received.");
 				    m_done.Wait();
 			    });
+
+				// Exit after our maximum runtime.
+				ShutdownAfterMaximumRuntime();
 
 			    var exitCode = action(m_context).GetAwaiter().GetResult();
 			    return m_settings.ExitProcessService.Exit(exitCode);
@@ -102,16 +105,39 @@ namespace Faithlife.Ananke
 			    m_done.Set();
 		    }
 	    }
-	    private void Shutdown(string reason)
+
+		/// <summary>
+		/// Initiates an automatic shutdown after the application has been running for its maximum runtime.
+		/// </summary>
+	    private async void ShutdownAfterMaximumRuntime()
+	    {
+		    await Task.Delay(m_settings.MaximumRuntime);
+		    Shutdown($"Maximum runtime of {m_settings.MaximumRuntime} reached.");
+	    }
+
+		/// <summary>
+		/// Initiates a shutdown. Sets <see cref="AnankeContext.ExitRequested"/> and starts the exit timeout.
+		/// </summary>
+		/// <param name="reason">The reason for the shutdown, written to the console log.</param>
+		private void Shutdown(string reason)
 	    {
 		    m_log.WriteLine("Shutting down: " + reason);
-		    Task.Run(async () =>
-		    {
-			    await Task.Delay(m_settings.ExitTimeout);
-			    m_done.Set();
-			    m_settings.ExitProcessService.Exit(c_exitTimeoutExitCode);
-		    });
+			ExitAfterTimeout();
 		    m_exitRequested.Cancel();
+	    }
+
+		/// <summary>
+		/// Waits for <see cref="AnankeSettings.ExitTimeout"/> and then sets <see cref="m_done"/> and calls <see cref="IExitProcessService.Exit"/>.
+		/// This method is always asynchronous.
+		/// </summary>
+	    private async void ExitAfterTimeout()
+	    {
+			// If ExitTimeout is zero, we want to force asynchrony so that ExitAfterTimeout returns before calling ExitPocessService.Exit.
+			await Task.Yield();
+
+			await Task.Delay(m_settings.ExitTimeout);
+			m_done.Set();
+			m_settings.ExitProcessService.Exit(c_exitTimeoutExitCode);
 	    }
 
 		private readonly AnankeSettings m_settings;

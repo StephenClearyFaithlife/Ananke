@@ -134,7 +134,7 @@ namespace Faithlife.Ananke.Tests
 		    ready.Wait();
 
 			settings.StubSigintSignalService.Invoke();
-		    Thread.Sleep(settings.StubExitTimeSpan * 2);
+		    Thread.Sleep(settings.StubExitTimeout * 2);
 			Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
 
 		    finish.Set();
@@ -155,7 +155,7 @@ namespace Faithlife.Ananke.Tests
 		    ready.Wait();
 
 		    Task.Run(() => settings.StubSigtermSignalService.Invoke());
-		    Thread.Sleep(settings.StubExitTimeSpan * 2);
+		    Thread.Sleep(settings.StubExitTimeout * 2);
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
 
 		    finish.Set();

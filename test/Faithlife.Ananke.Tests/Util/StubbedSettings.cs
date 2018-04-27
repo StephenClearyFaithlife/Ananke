@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke.Tests.Util
 {
     public sealed class StubbedSettings
     {
-	    public TimeSpan StubExitTimeSpan { get; } = TimeSpan.FromSeconds(1);
+	    public TimeSpan StubMaximumRuntime { get; set; } = Timeout.InfiniteTimeSpan;
+
+	    public TimeSpan StubExitTimeout { get; set; } = TimeSpan.FromSeconds(1);
 
 	    public StubStringLogService StubStringLogService { get; } = new StubStringLogService();
 
@@ -24,7 +27,7 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
-			return AnankeSettings.Create(exitTimeout: stubs.StubExitTimeSpan,
+			return AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
 				consoleLogService: stubs.StubStringLogService, exitProcessService: stubs.StubExitProcessService,
 				sigintSignalService: stubs.StubSigintSignalService, sigtermSignalService: stubs.StubSigtermSignalService,
 				consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
