@@ -144,7 +144,8 @@ namespace Faithlife.Ananke
 		/// <param name="reason">The reason for the shutdown, written to the console log.</param>
 		private void Shutdown(string reason)
 	    {
-		    m_log.WriteLine("Shutting down: " + reason);
+			if (!m_exitRequested.IsCancellationRequested)
+				m_log.WriteLine("Shutting down: " + reason);
 			ExitAfterTimeout();
 		    m_exitRequested.Cancel();
 	    }
