@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Faithlife.Ananke.Services;
 
@@ -67,12 +68,19 @@ namespace Faithlife.Ananke
 			TextWriter consoleStdout = null, TextWriter consoleStderr = null)
 		{
 			consoleStdout = consoleStdout ?? Console.Out;
+			if (signalService == null)
+			{
+				if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+					signalService = new WindowsSignalService();
+				else
+					signalService = new UnixSignalService();
+			}
 			return new AnankeSettings(maximumRuntime ?? Timeout.InfiniteTimeSpan,
 				exitTimeout ?? TimeSpan.FromSeconds(10),
 				randomMaximumRuntimeRelativeDelta ?? 0.10,
 				consoleLogService ?? new TextWriterStringLogService(consoleStdout),
 				exitProcessService ?? new ExitProcessService(),
-				signalService ?? new UnixSignalService(),
+				signalService,
 				consoleStdout,
 				consoleStderr ?? Console.Error);
 		}
