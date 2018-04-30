@@ -70,9 +70,17 @@ Exit codes are returned by Ananke even if you use `static void Main` as your ent
 
 ## Signals
 
-Ananke listens to `SIGINT` (`Ctrl-C`) and `SIGTERM` (`docker stop`). When one of these signals is received, the `AnankeContext.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.
+Ananke responds to `Ctrl-C` (if your container is run interactively) as well as `docker stop` on all platforms and container types. Note that for `docker stop` to work with Windows containers, they must have a base image *and* host running Windows Version `1709` or higher.
 
-Both `SIGINT` and `SIGTERM` are treated as graceful stop requests. However, for both signals, Ananke will start a kill timer (see `AnankeSettings.ExitTimeout`). If the application code has not returned within that timeout, Ananke will exit the process with exit code `65`.
+### Signal Specifics
+
+Ananke listens to various signals based on OS:
+* Windows: `CTRL_C_EVENT`, `CTRL_CLOSE_EVENT`, and `CTRL_SHUTDOWN_EVENT`
+* Other: `SIGINT` (`Ctrl-C`) and `SIGTERM`
+
+These are all treated the same: as a graceful stop request. When one of these signals is received, the `AnankeContext.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.
+
+When a signal comes in, Ananke will start a kill timer (see `AnankeSettings.ExitTimeout`). If the application code has not returned within that timeout, Ananke will exit the process with exit code `65`.
 
 ## Logs
 
