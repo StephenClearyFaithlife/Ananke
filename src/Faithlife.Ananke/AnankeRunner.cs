@@ -77,12 +77,18 @@ namespace Faithlife.Ananke
 	    {
 		    try
 		    {
-			    // Hook SIGINT and SIGTERM
+			    // Hook signals.
 			    m_settings.SignalService.AddHandler(signalName =>
 			    {
 				    Shutdown($"{signalName} received.");
 				    m_done.Wait();
 			    });
+
+				// Log any unexpected exceptions.
+			    AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+			    {
+					m_log.WriteLine("Unhandled exception: " + args.ExceptionObject.ToString());
+			    };
 
 				// Exit after our maximum runtime.
 				ShutdownAfterMaximumRuntime();
