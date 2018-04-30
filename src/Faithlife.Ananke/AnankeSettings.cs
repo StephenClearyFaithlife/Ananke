@@ -37,14 +37,9 @@ namespace Faithlife.Ananke
 		public IExitProcessService ExitProcessService { get; }
 
 	    /// <summary>
-	    /// Service that hooks SIGINT.
+	    /// Service that hooks shutdown signals sent to the process.
 	    /// </summary>
-	    public ISignalService SigintSignalService { get; }
-
-	    /// <summary>
-	    /// Service that hooks SIGTERM.
-	    /// </summary>
-	    public ISignalService SigtermSignalService { get; }
+	    public ISignalService SignalService { get; }
 
 		/// <summary>
 		/// The standard output stream.
@@ -64,13 +59,12 @@ namespace Faithlife.Ananke
 		/// <param name="randomMaximumRuntimeRelativeDelta">The amount of random fluction in <see cref="MaximumRuntime"/>. E.g., <c>0.10</c> is a 10% change; if <see cref="MaximumRuntime"/> is 30 minutes, then the actual maximum runtime would be a random value between 27 and 33 minutes. Defaults to 0.10 (10%).</param>
 		/// <param name="consoleLogService">Service that writes strings to the console. This is wrapped with a formatting text writer to escape EOL characters.</param>
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
-		/// <param name="sigintSignalService">Service that hooks SIGINT.</param>
-		/// <param name="sigtermSignalService">Service that hooks SIGTERM.</param>
+		/// <param name="signalService">Service that hooks shutdown signals sent to the process.</param>
 		/// <param name="consoleStdout">The standard output stream.</param>
 		/// <param name="consoleStderr">The standard error stream.</param>
 		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null,
-			IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null, ISignalService sigintSignalService = null,
-			ISignalService sigtermSignalService = null, TextWriter consoleStdout = null, TextWriter consoleStderr = null)
+			IStringLogService consoleLogService = null, IExitProcessService exitProcessService = null, ISignalService signalService = null,
+			TextWriter consoleStdout = null, TextWriter consoleStderr = null)
 		{
 			consoleStdout = consoleStdout ?? Console.Out;
 			return new AnankeSettings(maximumRuntime ?? Timeout.InfiniteTimeSpan,
@@ -78,22 +72,20 @@ namespace Faithlife.Ananke
 				randomMaximumRuntimeRelativeDelta ?? 0.10,
 				consoleLogService ?? new TextWriterStringLogService(consoleStdout),
 				exitProcessService ?? new ExitProcessService(),
-				sigintSignalService ?? new SigintSignalService(),
-				sigtermSignalService ?? new SigtermSignalService(),
+				signalService ?? new UnixSignalService(),
 				consoleStdout,
 				consoleStderr ?? Console.Error);
 		}
 
 	    private AnankeSettings(TimeSpan maximumRuntime, TimeSpan exitTimeout, double randomMaximumRuntimeRelativeDelta, IStringLogService consoleLogService,
-		    IExitProcessService exitProcessService, ISignalService sigintSignalService, ISignalService sigtermSignalService, TextWriter consoleStdout, TextWriter consoleStderr)
+		    IExitProcessService exitProcessService, ISignalService signalService, TextWriter consoleStdout, TextWriter consoleStderr)
 	    {
 			MaximumRuntime = maximumRuntime;
 		    ExitTimeout = exitTimeout;
 		    RandomMaximumRuntimeRelativeDelta = randomMaximumRuntimeRelativeDelta;
 		    ConsoleLogService = consoleLogService;
 		    ExitProcessService = exitProcessService;
-		    SigintSignalService = sigintSignalService;
-		    SigtermSignalService = sigtermSignalService;
+		    SignalService = signalService;
 		    ConsoleStdout = consoleStdout;
 		    ConsoleStderr = consoleStderr;
 	    }

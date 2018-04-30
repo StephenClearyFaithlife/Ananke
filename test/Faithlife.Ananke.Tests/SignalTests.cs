@@ -11,29 +11,7 @@ namespace Faithlife.Ananke.Tests
     public class SignalTests
     {
 	    [Test]
-	    public void Sigint_SignalsExitRequested()
-	    {
-		    var settings = new StubbedSettings();
-
-			var ready = new ManualResetEvent(false);
-			var finish = new ManualResetEvent(false);
-		    CancellationToken exitRequested;
-		    Task.Run(() => AnankeRunner.Main(settings, context =>
-		    {
-			    exitRequested = context.ExitRequested;
-			    ready.Set();
-			    finish.WaitOne();
-		    }));
-			ready.WaitOne();
-
-			settings.StubSigintSignalService.Invoke();
-			Assert.That(exitRequested.IsCancellationRequested, Is.True);
-
-		    finish.Set();
-	    }
-
-	    [Test]
-	    public void Sigterm_SignalsExitRequested()
+	    public void Signal_CancelsExitRequested()
 	    {
 		    var settings = new StubbedSettings();
 
@@ -49,7 +27,7 @@ namespace Faithlife.Ananke.Tests
 		    }));
 		    ready.WaitOne();
 		    exitRequested.Register(() => cancellationTokenSourceSet.Set());
-		    Task.Run(() => settings.StubSigtermSignalService.Invoke());
+		    Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 
 		    cancellationTokenSourceSet.WaitOne();
 		    Assert.That(exitRequested.IsCancellationRequested, Is.True);
@@ -58,7 +36,7 @@ namespace Faithlife.Ananke.Tests
 	    }
 
 	    [Test]
-	    public async Task Sigterm_BlocksHandlerUntilAppExits()
+	    public async Task Signal_BlocksHandlerUntilAppExits()
 	    {
 			var settings = new StubbedSettings();
 
@@ -72,7 +50,7 @@ namespace Faithlife.Ananke.Tests
 		    ready.WaitOne();
 
 			// The signal handler should block until mainTask completes.
-		    var signalTask = Task.Run(() => settings.StubSigtermSignalService.Invoke());
+		    var signalTask = Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 		    var signalTaskCompleted = signalTask.Wait(TimeSpan.FromMilliseconds(200));
 			Assert.That(signalTaskCompleted, Is.False);
 
@@ -93,7 +71,7 @@ namespace Faithlife.Ananke.Tests
 		    }));
 		    ready.Wait();
 
-			settings.StubSigintSignalService.Invoke();
+			var _ = Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 
 		    await task;
 			Assert.That(settings.StubExitProcessService.ExitCode, Is.Zero);
@@ -113,35 +91,14 @@ namespace Faithlife.Ananke.Tests
 		    }));
 		    ready.Wait();
 
-		    settings.StubSigintSignalService.Invoke();
+		    var _ = Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 
-		    await task;
+			await task;
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.Zero);
 	    }
 
 	    [Test]
-	    public void Sigint_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
-	    {
-		    var settings = new StubbedSettings();
-
-		    var ready = new ManualResetEventSlim();
-			var finish = new ManualResetEventSlim();
-		    Task.Run(() => AnankeRunner.Main(settings, context =>
-		    {
-			    ready.Set();
-			    finish.Wait();
-		    }));
-		    ready.Wait();
-
-			settings.StubSigintSignalService.Invoke();
-		    Thread.Sleep(settings.StubExitTimeout * 2);
-			Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
-
-		    finish.Set();
-	    }
-
-	    [Test]
-	    public void Sigterm_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
+	    public void Signal_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
 	    {
 		    var settings = new StubbedSettings();
 
@@ -154,7 +111,7 @@ namespace Faithlife.Ananke.Tests
 		    }));
 		    ready.Wait();
 
-		    Task.Run(() => settings.StubSigtermSignalService.Invoke());
+		    Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 		    Thread.Sleep(settings.StubExitTimeout * 2);
 		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
 

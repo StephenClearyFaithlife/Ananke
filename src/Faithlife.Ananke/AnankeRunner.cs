@@ -78,10 +78,9 @@ namespace Faithlife.Ananke
 		    try
 		    {
 			    // Hook SIGINT and SIGTERM
-			    m_settings.SigintSignalService.AddHandler(() => Shutdown("SIGINT received."));
-			    m_settings.SigtermSignalService.AddHandler(() =>
+			    m_settings.SignalService.AddHandler(signalName =>
 			    {
-				    Shutdown("SIGTERM received.");
+				    Shutdown($"{signalName} received.");
 				    m_done.Wait();
 			    });
 

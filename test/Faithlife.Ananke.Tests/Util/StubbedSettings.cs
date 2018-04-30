@@ -17,9 +17,7 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public StubExitProcessService StubExitProcessService { get; } = new StubExitProcessService();
 
-		public StubSignalService StubSigintSignalService { get; } = new StubSignalService();
-
-		public StubSignalService StubSigtermSignalService { get; } = new StubSignalService();
+		public StubSignalService StubSignalService { get; } = new StubSignalService();
 
 		public StringWriter StubConsoleStdout { get; } = new StringWriter();
 
@@ -29,8 +27,7 @@ namespace Faithlife.Ananke.Tests.Util
 	    {
 			return AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
 				consoleLogService: stubs.StubStringLogService, exitProcessService: stubs.StubExitProcessService,
-				sigintSignalService: stubs.StubSigintSignalService, sigtermSignalService: stubs.StubSigtermSignalService,
-				consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
+				signalService: stubs.StubSignalService, consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
 	    }
 	}
 }

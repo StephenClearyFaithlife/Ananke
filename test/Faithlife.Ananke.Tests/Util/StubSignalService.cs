@@ -7,16 +7,16 @@ namespace Faithlife.Ananke.Tests.Util
 {
     public sealed class StubSignalService : ISignalService
     {
-	    public void Invoke()
+	    public void Invoke(string signalName)
 	    {
-			m_handler?.Invoke();
+			m_handler?.Invoke(signalName);
 	    }
 
-	    public void AddHandler(Action handler)
+	    public void AddHandler(Action<string> handler)
 	    {
 		    m_handler += handler;
 	    }
 
-	    private Action m_handler;
+	    private Action<string> m_handler;
     }
 }

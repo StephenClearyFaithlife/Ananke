@@ -8,43 +8,35 @@ using System.Text;
 namespace Faithlife.Ananke.Services
 {
 	/// <summary>
-	/// Provides a way to handle process signals.
+	/// Provides a way to handle process shutdown signals.
 	/// </summary>
 	public interface ISignalService
 	{
 		/// <summary>
-		/// Adds a handler to this process signal. There is not currently a way to remove a handler.
+		/// Adds a handler to process shutdown signals. The handler receives the signal name; this is only for logging purposes. There is not currently a way to remove a handler.
 		/// </summary>
 		/// <param name="handler">The handler to add.</param>
-		void AddHandler(Action handler);
+		void AddHandler(Action<string> handler);
 	}
 
 	/// <inheritdoc />
-	public sealed class SigintSignalService : ISignalService
+	public sealed class UnixSignalService : ISignalService
 	{
 		/// <inheritdoc />
-		public void AddHandler(Action handler)
+		public void AddHandler(Action<string> handler)
 		{
 			Console.CancelKeyPress += (_, args) =>
 			{
 				if (args.SpecialKey == ConsoleSpecialKey.ControlC)
 				{
 					args.Cancel = true;
-					handler();
+					handler("SIGINT");
 				}
 			};
-		}
-	}
 
-	/// <inheritdoc />
-	public sealed class SigtermSignalService : ISignalService
-	{
-		/// <inheritdoc />
-		public void AddHandler(Action handler)
-		{
 			// See https://github.com/dotnet/coreclr/issues/7394
 			var assemblyLoadContext = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
-			assemblyLoadContext.Unloading += _ => handler();
+			assemblyLoadContext.Unloading += _ => handler("SIGTERM");
 		}
 	}
 }
