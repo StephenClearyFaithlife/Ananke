@@ -22,7 +22,7 @@ namespace Faithlife.Ananke.Services
 				}
 			};
 
-			// See https://github.com/dotnet/coreclr/issues/7394
+			// See https://github.com/dotnet/coreclr/issues/7394 / http://www.webcitation.org/6z4UQa7nG
 			var assemblyLoadContext = AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly());
 			assemblyLoadContext.Unloading += _ => handler("SIGTERM");
 		}

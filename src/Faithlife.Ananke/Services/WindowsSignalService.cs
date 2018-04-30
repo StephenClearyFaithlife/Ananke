@@ -8,8 +8,8 @@ using System.Text;
 namespace Faithlife.Ananke.Services
 {
 	/// <inheritdoc />
-	// See https://github.com/moby/moby/issues/25982#issuecomment-375105522
-    public sealed class WindowsSignalService : ISignalService
+	// See https://github.com/moby/moby/issues/25982#issuecomment-375105522 / http://www.webcitation.org/6z4QjWT0i
+	public sealed class WindowsSignalService : ISignalService
 	{
 		/// <summary>
 		/// Creates a Windows implementation of <see cref="ISignalService"/>.
@@ -18,7 +18,7 @@ namespace Faithlife.Ananke.Services
 		{
 			// Since SetConsoleCtrlHandler invokes its handlers on a last-registered, first-called basis, we force the .NET console to register its handler before us
 			//  by subscribing an empty handler to Console.CancelKeyPress.
-			//  (see https://docs.microsoft.com/en-us/windows/console/setconsolectrlhandler / http://www.webcitation.org/6z49Wueb1)
+			//  (see https://docs.microsoft.com/en-us/windows/console/setconsolectrlhandler / http://www.webcitation.org/6z49Wueb1 )
 			Console.CancelKeyPress += (_, args) => { };
 
 			m_handlerRoutine = ConsoleCtrlHandler;
