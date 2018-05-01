@@ -132,7 +132,10 @@ namespace Faithlife.Ananke
 		/// Initiates an automatic shutdown after the application has been running for its maximum runtime.
 		/// </summary>
 	    private async void ShutdownAfterMaximumRuntime()
-	    {
+		{
+			if (m_settings.MaximumRuntime == Timeout.InfiniteTimeSpan)
+				return;
+
 			// Determine the actual maximum runtime
 		    var delta = m_settings.RandomMaximumRuntimeRelativeDelta * m_settings.MaximumRuntime.Ticks;
 			var maxValue = m_settings.MaximumRuntime.Ticks + delta;
