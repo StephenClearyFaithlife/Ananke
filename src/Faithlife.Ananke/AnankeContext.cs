@@ -17,14 +17,12 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="stringLog">The string log service. This service must escape EOL characters.</param>
 		/// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
-		/// <param name="escapedConsoleStdout">An escaping text writer for stdout.</param>
-		/// <param name="escapedConsoleStderr">An escaping text writer for stderr.</param>
-		public AnankeContext(IStringLog stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout, TextWriter escapedConsoleStderr)
+		/// <param name="escapedConsoleStdout">An escaping text writer that writes to stdout.</param>
+		public AnankeContext(IStringLog stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout)
 		{
 			StringLog = stringLog;
 			ExitRequested = exitRequested;
 			EscapedConsoleStdout = escapedConsoleStdout;
-			EscapedConsoleStderr = escapedConsoleStderr;
 		}
 
 		/// <summary>
@@ -41,10 +39,5 @@ namespace Faithlife.Ananke
 		/// A text writer that writes to <see cref="Console.Out"/> after backslash-escaping EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
 		/// </summary>
 		public TextWriter EscapedConsoleStdout { get; }
-
-	    /// <summary>
-	    /// A text writer that writes to <see cref="Console.Error"/> after backslash-escaping EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
-	    /// </summary>
-	    public TextWriter EscapedConsoleStderr { get; }
     }
 }

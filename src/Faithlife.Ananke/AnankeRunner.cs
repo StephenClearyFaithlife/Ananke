@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,7 +65,7 @@ namespace Faithlife.Ananke
 		    m_settings = settings;
 		    m_log = new EscapingStringLog(m_settings.ConsoleLog);
 		    m_exitRequested = new CancellationTokenSource();
-		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new EscapingTextWriter(m_settings.ConsoleStdout), new EscapingTextWriter(m_settings.ConsoleStderr));
+		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new StringLogTextWriter(m_log));
 		    m_done = new ManualResetEventSlim();
 			m_exitCodeMutex = new object();
 	    }

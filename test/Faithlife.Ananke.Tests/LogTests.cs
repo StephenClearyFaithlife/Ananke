@@ -15,19 +15,11 @@ namespace Faithlife.Ananke.Tests
 	    }
 
 	    [Test]
-	    public void EscapingStdout_EscapesEolCharacters()
-	    {
-			var settings = new StubbedSettings();
-		    AnankeRunner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
-			Assert.That(settings.StubConsoleStdout.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
-	    }
-
-	    [Test]
-	    public void EscapingStderr_EscapesEolCharacters()
+	    public void EscapedConsoleStdout_EscapesEolCharacters()
 	    {
 		    var settings = new StubbedSettings();
-		    AnankeRunner.Main(settings, context => context.EscapedConsoleStderr.WriteLine("Test\nMessage"));
-		    Assert.That(settings.StubConsoleStderr.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
+		    AnankeRunner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
+			Assert.That(settings.StubConsoleStdout.ToString(), Does.Contain("Test\\nMessage" + Environment.NewLine));
 	    }
 	}
 }

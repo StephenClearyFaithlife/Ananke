@@ -49,11 +49,6 @@ namespace Faithlife.Ananke
 		public TextWriter ConsoleStdout { get; }
 
 		/// <summary>
-		/// The standard error stream.
-		/// </summary>
-		public TextWriter ConsoleStderr { get; }
-
-		/// <summary>
 		/// Creates an instance of <see cref="AnankeSettings"/>, with default settings for any setting not specified.
 		/// </summary>
 		/// <param name="maximumRuntime">The amonut of time application code should run until it is requested to exit. Defaults to infinite, but most apps should use a non-infinite time.</param>
@@ -63,10 +58,9 @@ namespace Faithlife.Ananke
 		/// <param name="exitProcessService">Service that exits the entire process.</param>
 		/// <param name="signalService">Service that hooks shutdown signals sent to the process.</param>
 		/// <param name="consoleStdout">The standard output stream.</param>
-		/// <param name="consoleStderr">The standard error stream.</param>
 		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null,
 			IStringLog consoleLog = null, IExitProcessService exitProcessService = null, ISignalService signalService = null,
-			TextWriter consoleStdout = null, TextWriter consoleStderr = null)
+			TextWriter consoleStdout = null)
 		{
 			consoleStdout = consoleStdout ?? Console.Out;
 			if (signalService == null)
@@ -82,12 +76,11 @@ namespace Faithlife.Ananke
 				consoleLog ?? new TextWriterStringLog(consoleStdout),
 				exitProcessService ?? new ExitProcessService(),
 				signalService,
-				consoleStdout,
-				consoleStderr ?? Console.Error);
+				consoleStdout);
 		}
 
 	    private AnankeSettings(TimeSpan maximumRuntime, TimeSpan exitTimeout, double randomMaximumRuntimeRelativeDelta, IStringLog consoleLog,
-		    IExitProcessService exitProcessService, ISignalService signalService, TextWriter consoleStdout, TextWriter consoleStderr)
+		    IExitProcessService exitProcessService, ISignalService signalService, TextWriter consoleStdout)
 	    {
 			MaximumRuntime = maximumRuntime;
 		    ExitTimeout = exitTimeout;
@@ -96,7 +89,6 @@ namespace Faithlife.Ananke
 		    ExitProcessService = exitProcessService;
 		    SignalService = signalService;
 		    ConsoleStdout = consoleStdout;
-		    ConsoleStderr = consoleStderr;
 	    }
     }
 }

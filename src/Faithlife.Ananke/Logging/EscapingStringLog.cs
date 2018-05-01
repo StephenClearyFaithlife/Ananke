@@ -6,7 +6,7 @@ using Faithlife.Ananke.Services;
 namespace Faithlife.Ananke.Logging
 {
 	/// <summary>
-	/// A string logger that backslash-escapes EOL characters before passing them to an inner logger.
+	/// A string logger that backslash-escapes EOL characters before passing them to an inner logger. This type is threadsafe if its underlying <see cref="IStringLog"/> is threadsafe.
 	/// </summary>
     public sealed class EscapingStringLog : IStringLog
     {

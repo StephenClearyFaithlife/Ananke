@@ -13,21 +13,19 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public TimeSpan StubExitTimeout { get; set; } = TimeSpan.FromSeconds(1);
 
-	    public StubStringLog StubStringLog { get; } = new StubStringLog();
+	    public StubStringLog StubStringLog { get; } = new StubStringLog(new StringWriter());
 
 	    public StubExitProcessService StubExitProcessService { get; } = new StubExitProcessService();
 
 		public StubSignalService StubSignalService { get; } = new StubSignalService();
 
-		public StringWriter StubConsoleStdout { get; } = new StringWriter();
-
-		public StringWriter StubConsoleStderr { get; } = new StringWriter();
+	    public StringWriter StubConsoleStdout => StubStringLog.StringWriter;
 
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
 			return AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
 				consoleLog: stubs.StubStringLog, exitProcessService: stubs.StubExitProcessService,
-				signalService: stubs.StubSignalService, consoleStdout: stubs.StubConsoleStdout, consoleStderr: stubs.StubConsoleStderr);
+				signalService: stubs.StubSignalService, consoleStdout: stubs.StubConsoleStdout);
 	    }
 	}
 }
