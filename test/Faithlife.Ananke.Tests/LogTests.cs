@@ -11,7 +11,7 @@ namespace Faithlife.Ananke.Tests
 	    {
 		    var settings = new StubbedSettings();
 		    AnankeRunner.Main(settings, (Action<AnankeContext>) (_ => throw new InvalidOperationException()));
-		    Assert.That(settings.StubStringLogService.Messages, Has.None.Contains("\n"));
+		    Assert.That(settings.StubStringLog.Messages, Has.None.Contains("\n"));
 	    }
 
 	    [Test]

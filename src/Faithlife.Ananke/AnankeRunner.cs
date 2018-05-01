@@ -62,7 +62,7 @@ namespace Faithlife.Ananke
 	    private AnankeRunner(AnankeSettings settings)
 	    {
 		    m_settings = settings;
-		    m_log = new EscapingStringLog(m_settings.ConsoleLogService);
+		    m_log = new EscapingStringLog(m_settings.ConsoleLog);
 		    m_exitRequested = new CancellationTokenSource();
 		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new EscapingTextWriter(m_settings.ConsoleStdout), new EscapingTextWriter(m_settings.ConsoleStderr));
 		    m_done = new ManualResetEventSlim();
@@ -172,7 +172,7 @@ namespace Faithlife.Ananke
 	    }
 
 		private readonly AnankeSettings m_settings;
-		private readonly IStringLogService m_log;
+		private readonly IStringLog m_log;
 		private readonly AnankeContext m_context;
 	    private readonly CancellationTokenSource m_exitRequested;
 	    private readonly ManualResetEventSlim m_done;

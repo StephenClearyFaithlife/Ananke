@@ -5,7 +5,7 @@ using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke.Tests.Util
 {
-    public sealed class StubStringLogService : IStringLogService
+    public sealed class StubStringLog : IStringLog
     {
 		public List<string> Messages { get; } = new List<string>();
 

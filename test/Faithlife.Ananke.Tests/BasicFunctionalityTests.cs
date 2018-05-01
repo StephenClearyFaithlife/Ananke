@@ -49,7 +49,7 @@ namespace Faithlife.Ananke.Tests
 	    {
 		    var settings = new StubbedSettings();
 		    AnankeRunner.Main(settings, (Action<AnankeContext>)(_ => throw new InvalidOperationException("Test message")));
-			Assert.That(settings.StubStringLogService.Messages, Has.Some.Contains("Test message"));
+			Assert.That(settings.StubStringLog.Messages, Has.Some.Contains("Test message"));
 	    }
 
 	    [Test]
@@ -57,7 +57,7 @@ namespace Faithlife.Ananke.Tests
 	    {
 		    var settings = new StubbedSettings();
 		    AnankeRunner.Main(settings, (Action<AnankeContext>)(_ => throw new InvalidOperationException("Outer message", new InvalidOperationException("Test message"))));
-		    Assert.That(settings.StubStringLogService.Messages, Has.Some.Contains("Test message"));
+		    Assert.That(settings.StubStringLog.Messages, Has.Some.Contains("Test message"));
 	    }
 	}
 }
