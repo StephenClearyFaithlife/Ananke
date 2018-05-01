@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke

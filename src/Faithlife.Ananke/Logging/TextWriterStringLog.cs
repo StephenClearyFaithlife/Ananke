@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Faithlife.Ananke.Services
+namespace Faithlife.Ananke.Logging
 {
 	/// <inheritdoc/>
 	/// This type writes all string messages to a text writer, without any escaping.

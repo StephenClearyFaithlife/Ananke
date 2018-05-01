@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Faithlife.Ananke.Services;
+using Faithlife.Ananke.Logging;
 
 namespace Faithlife.Ananke.Tests.Util
 {

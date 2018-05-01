@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Faithlife.Ananke.Services
+﻿namespace Faithlife.Ananke.Logging
 {
 	/// <summary>
 	/// Service that writes strings to a log.

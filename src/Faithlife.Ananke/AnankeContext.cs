@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using Faithlife.Ananke.Services;
+using Faithlife.Ananke.Logging;
 
 namespace Faithlife.Ananke
 {
