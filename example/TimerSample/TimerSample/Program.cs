@@ -13,6 +13,9 @@ namespace TimerSample
 
 		static void Main() => AnankeRunner.Main(Settings, async context =>
 		{
+			Console.SetOut(context.FormattedConsoleStdout);
+			Console.SetError(context.FormattedConsoleStdout);
+
 			while (true)
 			{
 				await Task.Delay(TimeSpan.FromSeconds(1), context.ExitRequested);

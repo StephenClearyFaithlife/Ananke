@@ -28,7 +28,7 @@ namespace Faithlife.Ananke
 		}
 
 		/// <summary>
-		/// Logger provider that writes formatted strings to <see cref="AnankeSettings.ConsoleLog"/>.
+		/// Same as <see cref="AnankeSettings.LoggerProvider"/>.
 		/// </summary>
 		public ILoggerProvider LoggerProvider { get; }
 
@@ -43,7 +43,7 @@ namespace Faithlife.Ananke
 		public TextWriter EscapingConsoleStdout { get; }
 
 		/// <summary>
-		/// A text writer that writes to <see cref="LoggerProvider"/>.
+		/// A text writer that writes to <see cref="LoggerProvider"/>. You must explicitly request a log event by calling one of the <c>WriteLine</c> methods.
 		/// </summary>
 		public TextWriter LoggingConsoleStdout { get; }
     }

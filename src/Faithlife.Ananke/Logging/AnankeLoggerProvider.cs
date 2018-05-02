@@ -12,16 +12,25 @@ namespace Faithlife.Ananke.Logging
 	/// </summary>
 	public sealed partial class AnankeLoggerProvider : ILoggerProvider
     {
-	    /// <summary>
-	    /// Creates a new logger provider.
-	    /// </summary>
-	    /// <param name="stringLog">The underlying string log to which all logs are written.</param>
-	    /// <param name="formatter">The formatter used to translate log events into single-line strings.</param>
-	    public AnankeLoggerProvider(IStringLog stringLog, Formatter formatter)
+		/// <summary>
+		/// Creates a new logger provider.
+		/// </summary>
+		/// <param name="stringLog">The underlying string log to which all logs are written. May not be <c>null</c>.</param>
+		/// <param name="formatter">The formatter used to translate log events into single-line strings. May not be <c>null</c>.</param>
+		/// <param name="filter">The filter for determining which log events to log. May not be <c>null</c>.</param>
+		public AnankeLoggerProvider(IStringLog stringLog, Formatter formatter, IsEnabledFilter filter)
 	    {
-		    m_stringLog = stringLog;
+			if (stringLog == null)
+				throw new ArgumentNullException(nameof(stringLog));
+		    if (formatter == null)
+			    throw new ArgumentNullException(nameof(formatter));
+		    if (filter == null)
+			    throw new ArgumentNullException(nameof(filter));
+
+			m_stringLog = stringLog;
 		    m_formatter = formatter;
-			m_loggers = new ConcurrentDictionary<string, ILogger>();
+		    m_filter = filter;
+		    m_loggers = new ConcurrentDictionary<string, ILogger>();
 	    }
 
 		/// <summary>
@@ -33,6 +42,14 @@ namespace Faithlife.Ananke.Logging
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
 		public delegate string Formatter(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception); // TODO: add scope parameter
+		// TODO: add structured data parameters
+
+		/// <summary>
+		/// Determines whether a log event is enabled. Any events for which this method returns <c>false</c> are not logged.
+		/// </summary>
+		/// <param name="loggerName">The name (category) of the logger. May not be <c>null</c>.</param>
+		/// <param name="logLevel">The importance of the event.</param>
+	    public delegate bool IsEnabledFilter(string loggerName, LogLevel logLevel);
 
 	    /// <inheritdoc/>
 	    public ILogger CreateLogger(string categoryName)
@@ -51,11 +68,7 @@ namespace Faithlife.Ananke.Logging
 			m_stringLog.WriteLine(m_formatter(loggerName, logLevel, eventId, message, exception));
 	    }
 
-	    private bool IsEnabled(string name, LogLevel logLevel)
-	    {
-		    // TODO: allow filtering
-		    return true;
-	    }
+	    private bool IsEnabled(string loggerName, LogLevel logLevel) => m_filter(loggerName, logLevel);
 
 	    private IDisposable BeginScope<TState>(TState state)
 	    {
@@ -65,6 +78,7 @@ namespace Faithlife.Ananke.Logging
 
 	    private readonly IStringLog m_stringLog;
 	    private readonly Formatter m_formatter;
+	    private readonly IsEnabledFilter m_filter;
 	    private readonly ConcurrentDictionary<string, ILogger> m_loggers;
     }
 }
