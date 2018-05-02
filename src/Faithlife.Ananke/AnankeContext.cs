@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using Faithlife.Ananke.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Faithlife.Ananke
 {
@@ -12,23 +12,23 @@ namespace Faithlife.Ananke
 	/// </summary>
     public sealed class AnankeContext
     {
-		/// <summary>
-		/// Creates an execution context for application code.
-		/// </summary>
-		/// <param name="stringLog">The string log service. This service must escape EOL characters.</param>
-		/// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
-		/// <param name="escapedConsoleStdout">An escaping text writer that writes to stdout.</param>
-		public AnankeContext(IStringLog stringLog, CancellationToken exitRequested, TextWriter escapedConsoleStdout)
+	    /// <summary>
+	    /// Creates an execution context for application code.
+	    /// </summary>
+	    /// <param name="loggerProvider">The logger provider.</param>
+	    /// <param name="exitRequested">A cancellation token which is cancelled when the application is requestd to exit.</param>
+	    /// <param name="escapedConsoleStdout">An escaping text writer that writes to stdout.</param>
+	    public AnankeContext(ILoggerProvider loggerProvider, CancellationToken exitRequested, TextWriter escapedConsoleStdout)
 		{
-			StringLog = stringLog;
+			LoggerProvider = loggerProvider;
 			ExitRequested = exitRequested;
 			EscapedConsoleStdout = escapedConsoleStdout;
 		}
 
 		/// <summary>
-		/// Service that writes strings to a log. You may send messages that contain EOL characters to this instance; they will be escaped before they are passed to <see cref="AnankeSettings.ConsoleLog"/>.
+		/// Logger provider that writes formatted strings to <see cref="AnankeSettings.ConsoleLog"/>.
 		/// </summary>
-		public IStringLog StringLog { get; }
+		public ILoggerProvider LoggerProvider { get; }
 
 	    /// <summary>
 	    /// The application has been requested to exit.

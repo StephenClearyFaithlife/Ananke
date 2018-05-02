@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Faithlife.Ananke
 {
@@ -63,9 +64,11 @@ namespace Faithlife.Ananke
 	    private AnankeRunner(AnankeSettings settings)
 	    {
 		    m_settings = settings;
-		    m_log = new EscapingStringLog(m_settings.ConsoleLog);
+			var loggerProvider = new AnankeLoggerProvider(m_settings.ConsoleLog, AnankeFormatters.StructuredText);
+		    m_log = loggerProvider.CreateLogger("Ananke"); // TODO: setting
 		    m_exitRequested = new CancellationTokenSource();
-		    m_context = new AnankeContext(m_log, m_exitRequested.Token, new StringLogTextWriter(m_log));
+		    var escapedConsoleStdout = new StringLogTextWriter(new EscapingStringLog(m_settings.ConsoleLog));
+			m_context = new AnankeContext(loggerProvider, m_exitRequested.Token, escapedConsoleStdout);
 		    m_done = new ManualResetEventSlim();
 			m_exitCodeMutex = new object();
 	    }
@@ -81,15 +84,12 @@ namespace Faithlife.Ananke
 			    // Hook signals.
 			    m_settings.SignalService.AddHandler(signalName =>
 			    {
-				    Shutdown($"{signalName} received.");
+				    Shutdown(() => m_log.ShutdownSignalReceived(signalName));
 				    m_done.Wait();
 			    });
 
-				// Log any unexpected exceptions.
-			    AppDomain.CurrentDomain.UnhandledException += (_, args) =>
-			    {
-					m_log.WriteLine("Unhandled exception: " + args.ExceptionObject.ToString());
-			    };
+				// Log any unhandled exceptions.
+			    AppDomain.CurrentDomain.UnhandledException += (_, args) => m_log.UnhandledAppDomainException(args.ExceptionObject as Exception);
 
 				// Exit after our maximum runtime.
 				ShutdownAfterMaximumRuntime();
@@ -100,12 +100,12 @@ namespace Faithlife.Ananke
 		    }
 		    catch (OperationCanceledException) when (m_exitRequested.IsCancellationRequested)
 		    {
-			    m_log.WriteLine("Ignoring OperationCanceledException since we are shutting down.");
+			    m_log.IgnoringOperationCanceledException();
 			    return c_successExitCode;
 		    }
 		    catch (Exception ex)
 		    {
-			    m_log.WriteLine(ex.ToString());
+				m_log.UnhandledApplicationException(ex);
 				SetExitCode(c_unexpectedExceptionExitCode);
 			    return c_unexpectedExceptionExitCode;
 		    }
@@ -143,19 +143,20 @@ namespace Faithlife.Ananke
 		    var randomizedValue = new Random().NextDouble() * (maxValue - minValue) + minValue;
 		    var shutdownAfter = TimeSpan.FromTicks(unchecked((long)randomizedValue));
 
-		    m_log.WriteLine($"Maximum runtime set to {shutdownAfter}.");
+		    m_log.MaximumRuntime(shutdownAfter);
 		    await Task.Delay(shutdownAfter);
-		    Shutdown($"Maximum runtime of {shutdownAfter} reached.");
+		    Shutdown(() => m_log.MaximumRuntimeReached(shutdownAfter));
 	    }
 
 		/// <summary>
 		/// Initiates a shutdown. Sets <see cref="AnankeContext.ExitRequested"/> and starts the exit timeout.
 		/// </summary>
-		/// <param name="reason">The reason for the shutdown, written to the console log.</param>
-		private void Shutdown(string reason)
-	    {
+		/// <param name="log">A delegate that writes to the console log.</param>
+		private void Shutdown(Action log)
+		{
 			if (!m_exitRequested.IsCancellationRequested)
-				m_log.WriteLine("Shutting down: " + reason);
+				log();
+
 			ExitAfterTimeout();
 		    m_exitRequested.Cancel();
 	    }
@@ -176,7 +177,7 @@ namespace Faithlife.Ananke
 	    }
 
 		private readonly AnankeSettings m_settings;
-		private readonly IStringLog m_log;
+		private readonly ILogger m_log;
 		private readonly AnankeContext m_context;
 	    private readonly CancellationTokenSource m_exitRequested;
 	    private readonly ManualResetEventSlim m_done;

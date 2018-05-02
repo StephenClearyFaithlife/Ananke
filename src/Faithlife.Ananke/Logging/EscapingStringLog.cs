@@ -20,7 +20,7 @@ namespace Faithlife.Ananke.Logging
 	    }
 
 		/// <inheritdoc />
-	    public void WriteLine(string message) => m_log.WriteLine(message.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r"));
+	    public void WriteLine(string message) => m_log.WriteLine(Escaping.BackslashEscape(message));
 
 	    private readonly IStringLog m_log;
 	}
