@@ -18,7 +18,7 @@ namespace Faithlife.Ananke.Tests
 	    public void EscapedConsoleStdout_EscapesEolCharacters()
 	    {
 		    var settings = new StubbedSettings();
-		    AnankeRunner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
+		    AnankeRunner.Main(settings, context => context.EscapingConsoleStdout.WriteLine("Test\nMessage"));
 			Assert.That(settings.StubStringLog.StringWriter.ToString(), Does.Contain("Test\\nMessage" + Environment.NewLine));
 	    }
 	}

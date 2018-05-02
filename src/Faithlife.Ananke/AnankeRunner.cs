@@ -67,8 +67,9 @@ namespace Faithlife.Ananke
 			var loggerProvider = new AnankeLoggerProvider(m_settings.ConsoleLog, AnankeFormatters.FormattedText);
 		    m_log = loggerProvider.CreateLogger("Ananke"); // TODO: setting
 		    m_exitRequested = new CancellationTokenSource();
-		    var escapedConsoleStdout = new StringLogTextWriter(new EscapingStringLog(m_settings.ConsoleLog));
-			m_context = new AnankeContext(loggerProvider, m_exitRequested.Token, escapedConsoleStdout);
+		    var escapingConsoleStdout = new StringLogTextWriter(new EscapingStringLog(m_settings.ConsoleLog));
+			var loggingConsoleStdout = new StringLogTextWriter(new LoggingStringLog(loggerProvider, m_settings.StdoutParser));
+			m_context = new AnankeContext(loggerProvider, m_exitRequested.Token, escapingConsoleStdout, loggingConsoleStdout);
 		    m_done = new ManualResetEventSlim();
 			m_exitCodeMutex = new object();
 	    }
