@@ -19,7 +19,7 @@ namespace Faithlife.Ananke.Tests
 	    {
 		    var settings = new StubbedSettings();
 		    AnankeRunner.Main(settings, context => context.EscapedConsoleStdout.WriteLine("Test\nMessage"));
-			Assert.That(settings.StubConsoleStdout.ToString(), Does.Contain("Test\\nMessage" + Environment.NewLine));
+			Assert.That(settings.StubStringLog.StringWriter.ToString(), Does.Contain("Test\\nMessage" + Environment.NewLine));
 	    }
 	}
 }

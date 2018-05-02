@@ -19,13 +19,11 @@ namespace Faithlife.Ananke.Tests.Util
 
 		public StubSignalService StubSignalService { get; } = new StubSignalService();
 
-	    public StringWriter StubConsoleStdout => StubStringLog.StringWriter;
-
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
 			return AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
 				consoleLog: stubs.StubStringLog, exitProcessService: stubs.StubExitProcessService,
-				signalService: stubs.StubSignalService, consoleStdout: stubs.StubConsoleStdout);
+				signalService: stubs.StubSignalService);
 	    }
 	}
 }
