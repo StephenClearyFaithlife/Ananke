@@ -11,20 +11,20 @@ namespace Faithlife.Ananke
 	public static class AnankeFormatters
     {
 		/// <summary>
-		/// A formatter that formats logs messages as structured text.
+		/// A formatter that formats logs messages as formatted plain-text.
 		/// </summary>
 		/// <param name="loggerName">The name (category) of the logger. May not be <c>null</c>.</param>
 		/// <param name="logLevel">The importance of the event.</param>
 		/// <param name="eventId">The id of the event, or <c>0</c> if there is no id.</param>
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
-	    public static string StructuredText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception)
+	    public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception)
 	    {
 		    if (message == "")
 			    message = "Exception";
 
 		    var sb = new StringBuilder();
-		    sb.Append(StructuredTextLogLevel(logLevel));
+		    sb.Append(FormattedTextLogLevel(logLevel));
 		    sb.Append(Escaping.BackslashEscape(loggerName));
 		    if (eventId.Id != 0)
 			    sb.Append("(" + eventId.Id + ")");
@@ -40,7 +40,7 @@ namespace Faithlife.Ananke
 		    return sb.ToString();
 	    }
 
-	    private static string StructuredTextLogLevel(LogLevel logLevel)
+	    private static string FormattedTextLogLevel(LogLevel logLevel)
 	    {
 		    switch (logLevel)
 		    {

@@ -64,7 +64,7 @@ namespace Faithlife.Ananke
 	    private AnankeRunner(AnankeSettings settings)
 	    {
 		    m_settings = settings;
-			var loggerProvider = new AnankeLoggerProvider(m_settings.ConsoleLog, AnankeFormatters.StructuredText);
+			var loggerProvider = new AnankeLoggerProvider(m_settings.ConsoleLog, AnankeFormatters.FormattedText);
 		    m_log = loggerProvider.CreateLogger("Ananke"); // TODO: setting
 		    m_exitRequested = new CancellationTokenSource();
 		    var escapedConsoleStdout = new StringLogTextWriter(new EscapingStringLog(m_settings.ConsoleLog));
