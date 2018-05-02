@@ -26,8 +26,10 @@ namespace Faithlife.Ananke
 		    var sb = new StringBuilder();
 		    sb.Append(StructuredTextLogLevel(logLevel));
 		    sb.Append(Escaping.BackslashEscape(loggerName));
+		    if (eventId.Id != 0)
+			    sb.Append("(" + eventId.Id + ")");
 			// TODO: scope goes here.
-		    sb.Append(": ");
+			sb.Append(": ");
 		    sb.Append(Escaping.BackslashEscape(message));
 		    if (exception != null)
 		    {
