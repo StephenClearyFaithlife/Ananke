@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Service that exits the entire process.
 	/// </summary>
-	public interface IExitProcessService
+	internal interface IExitProcessService
 	{
 		/// <summary>
 		/// Gets or sets the exit code for the process.

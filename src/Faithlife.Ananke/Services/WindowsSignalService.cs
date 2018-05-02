@@ -9,7 +9,7 @@ namespace Faithlife.Ananke.Services
 {
 	/// <inheritdoc />
 	// See https://github.com/moby/moby/issues/25982#issuecomment-375105522 / http://www.webcitation.org/6z4QjWT0i
-	public sealed class WindowsSignalService : ISignalService
+	internal sealed class WindowsSignalService : ISignalService
 	{
 		/// <summary>
 		/// Creates a Windows implementation of <see cref="ISignalService"/>.

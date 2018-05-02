@@ -21,9 +21,11 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
-			return AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
-				consoleLog: stubs.StubStringLog, exitProcessService: stubs.StubExitProcessService,
-				signalService: stubs.StubSignalService);
+			var result = AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
+				consoleLog: stubs.StubStringLog);
+		    result.ExitProcessService = stubs.StubExitProcessService;
+		    result.SignalService = stubs.StubSignalService;
+		    return result;
 	    }
 	}
 }

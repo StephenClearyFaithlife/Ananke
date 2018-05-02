@@ -5,7 +5,7 @@ using System.Text;
 namespace Faithlife.Ananke.Services
 {
 	/// <inheritdoc/>
-	public sealed class ExitProcessService: IExitProcessService
+	internal sealed class ExitProcessService: IExitProcessService
 	{
 		/// <inheritdoc/>
 		public int ExitCode

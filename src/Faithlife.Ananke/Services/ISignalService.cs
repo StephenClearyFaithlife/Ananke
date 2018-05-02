@@ -10,7 +10,7 @@ namespace Faithlife.Ananke.Services
 	/// <summary>
 	/// Provides a way to handle process shutdown signals.
 	/// </summary>
-	public interface ISignalService
+	internal interface ISignalService
 	{
 		/// <summary>
 		/// Adds a handler to process shutdown signals. The handler receives the signal name; this is only for logging purposes. There is not currently a way to remove a handler.
