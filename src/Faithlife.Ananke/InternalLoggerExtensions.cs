@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke
 {
 	/// <summary>
 	/// Provides logger extensions used by Ananke.
