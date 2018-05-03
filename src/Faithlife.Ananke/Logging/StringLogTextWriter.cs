@@ -9,7 +9,7 @@ namespace Faithlife.Ananke.Logging
 	/// <summary>
 	/// A text writer that writes to a string log only when an explicit <c>WriteLine</c>/<c>WriteLineAsync</c> is requested or <c>Flush</c>/<c>FlushAsync</c> is invoked.
 	/// </summary>
-    public sealed class StringLogTextWriter: TextWriter
+    internal sealed class StringLogTextWriter: TextWriter
 	{
 		/// <summary>
 		/// Creates a new text writer that writes to the specified string log only when an explicit <c>WriteLine</c> is requested.

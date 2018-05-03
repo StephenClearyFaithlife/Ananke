@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Tests.Util;
@@ -22,9 +23,10 @@ namespace Faithlife.Ananke.Tests
 	    [Test]
 	    public void EscapedConsoleStdout_EscapesEolCharacters()
 	    {
-		    var settings = new StubbedSettings();
-		    AnankeRunner.Main(settings, context => context.EscapingConsoleStdout.WriteLine("Test\nMessage"));
-			Assert.That(settings.StubStringLog.StringWriter.ToString(), Does.Contain("Test\\nMessage" + Environment.NewLine));
+		    var stdout = new StringWriter();
+		    var escapedStdout = Escaping.CreateEscapingTextWriter(stdout);
+		    escapedStdout.WriteLine("Test\nMessage");
+			Assert.That(stdout.ToString(), Is.EqualTo("Test\\nMessage" + Environment.NewLine));
 	    }
 
 		[Test]

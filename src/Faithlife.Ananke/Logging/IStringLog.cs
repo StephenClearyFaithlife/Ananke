@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Service that writes strings to a log.
 	/// </summary>
-	public interface IStringLog
+	internal interface IStringLog
 	{
 		/// <summary>
 		/// Writes a single message to the log.

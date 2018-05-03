@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Faithlife.Ananke.Logging
 {
-	public sealed partial class AnankeLoggerProvider
+	internal sealed partial class AnankeLoggerProvider
 	{
 		private sealed class AnankeLogger : ILogger
 		{

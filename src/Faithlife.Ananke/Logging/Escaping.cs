@@ -1,17 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Faithlife.Ananke.Logging
 {
 	/// <summary>
-	/// Utility class to backslash-escape character sets.
+	/// Utility class to backslash-escape EOL characters.
 	/// </summary>
     public static class Escaping
 	{
 		/// <summary>
-		/// Backslash-escapes the newline characters in a source string.
+		/// Creates a <see cref="TextWriter"/> that backslash-escapes EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
+		/// </summary>
+		/// <param name="destination">The wrapped <see cref="TextWriter"/> that the escaping <see cref="TextWriter"/> writes to.</param>
+		/// <returns></returns>
+		public static TextWriter CreateEscapingTextWriter(TextWriter destination)
+		{
+			return new StringLogTextWriter(new EscapingStringLog(new TextWriterStringLog(destination)));
+		}
+
+		/// <summary>
+		/// Backslash-escapes the EOL characters in a source string.
 		/// </summary>
 		/// <param name="source">The source string.</param>
 	    public static string BackslashEscape(string source)

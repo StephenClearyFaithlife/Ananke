@@ -17,13 +17,11 @@ namespace Faithlife.Ananke
 		/// </summary>
 		/// <param name="loggerProvider">The logger provider.</param>
 		/// <param name="exitRequested">The cancellation token which is cancelled when the application is requestd to exit.</param>
-		/// <param name="escapingConsoleStdout">The escaping text writer.</param>
 		/// <param name="loggingConsoleStdout">The logging text writer.</param>
-		public AnankeContext(ILoggerProvider loggerProvider, CancellationToken exitRequested, TextWriter escapingConsoleStdout, TextWriter loggingConsoleStdout)
+		public AnankeContext(ILoggerProvider loggerProvider, CancellationToken exitRequested, TextWriter loggingConsoleStdout)
 		{
 			LoggerProvider = loggerProvider;
 			ExitRequested = exitRequested;
-			EscapingConsoleStdout = escapingConsoleStdout;
 			LoggingConsoleStdout = loggingConsoleStdout;
 		}
 
@@ -36,11 +34,6 @@ namespace Faithlife.Ananke
 	    /// The application has been requested to exit.
 	    /// </summary>
 	    public CancellationToken ExitRequested { get; }
-
-		/// <summary>
-		/// A text writer that writes to <see cref="AnankeSettings.ConsoleLog"/> after backslash-escaping EOL characters. You must explicitly request an EOL by calling one of the <c>WriteLine</c> methods.
-		/// </summary>
-		public TextWriter EscapingConsoleStdout { get; }
 
 		/// <summary>
 		/// A text writer that writes to <see cref="LoggerProvider"/>. You must explicitly request a log event by calling one of the <c>WriteLine</c> methods.

@@ -14,7 +14,7 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public TimeSpan StubExitTimeout { get; set; } = TimeSpan.FromSeconds(1);
 
-	    public AnankeLoggerProvider.Formatter Formatter { get; set; } = null;
+	    public LoggerFormatter Formatter { get; set; } = null;
 
 	    public StubStringLog StubStringLog { get; } = new StubStringLog(new StringWriter());
 
@@ -25,7 +25,7 @@ namespace Faithlife.Ananke.Tests.Util
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
 			return AnankeSettings.InternalCreate(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
-				consoleLog: stubs.StubStringLog, anankeLoggerProviderFormatter: stubs.Formatter, exitProcessService: stubs.StubExitProcessService,
+				consoleLog: stubs.StubStringLog, loggerFormatter: stubs.Formatter, exitProcessService: stubs.StubExitProcessService,
 				signalService: stubs.StubSignalService);
 	    }
 	}
