@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Services;
 
 namespace Faithlife.Ananke.Tests.Util
@@ -13,6 +14,8 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public TimeSpan StubExitTimeout { get; set; } = TimeSpan.FromSeconds(1);
 
+	    public AnankeLoggerProvider.Formatter Formatter { get; set; } = null;
+
 	    public StubStringLog StubStringLog { get; } = new StubStringLog(new StringWriter());
 
 	    public StubExitProcessService StubExitProcessService { get; } = new StubExitProcessService();
@@ -22,7 +25,7 @@ namespace Faithlife.Ananke.Tests.Util
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
 			var result = AnankeSettings.Create(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
-				consoleLog: stubs.StubStringLog);
+				consoleLog: stubs.StubStringLog, anankeLoggerProviderFormatter: stubs.Formatter);
 		    result.ExitProcessService = stubs.StubExitProcessService;
 		    result.SignalService = stubs.StubSignalService;
 		    return result;

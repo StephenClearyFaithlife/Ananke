@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Faithlife.Ananke.Logging;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,10 @@ namespace Faithlife.Ananke
 		/// <param name="eventId">The id of the event, or <c>0</c> if there is no id.</param>
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
-	    public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception)
+		/// <param name="state">The structured state for the message, if any. May be <c>null</c>.</param>
+		/// <param name="scope">The structured scope for the message, if any. May be <c>null</c>.</param>
+	    public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
+			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope)
 	    {
 		    if (message == "")
 			    message = "Exception";

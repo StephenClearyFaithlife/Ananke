@@ -41,8 +41,10 @@ namespace Faithlife.Ananke.Logging
 		/// <param name="eventId">The id of the event, or <c>0</c> if there is no id.</param>
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
-		public delegate string Formatter(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception); // TODO: add scope parameter
-		// TODO: add structured data parameters
+		/// <param name="state">The structured state for the message, if any. May be <c>null</c>.</param>
+		/// <param name="scope">The structured scope for the message, if any. May be <c>null</c>.</param>
+		public delegate string Formatter(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
+			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope);
 
 		/// <summary>
 		/// Determines whether a log event is enabled. Any events for which this method returns <c>false</c> are not logged.
@@ -61,11 +63,11 @@ namespace Faithlife.Ananke.Logging
 
 	    void IDisposable.Dispose() { }
 
-	    private void Log(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception)
+	    private void Log(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception, IEnumerable<KeyValuePair<string, object>> state)
 	    {
 		    if (message == "" && exception == null)
 			    return;
-			m_stringLog.WriteLine(m_formatter(loggerName, logLevel, eventId, message, exception));
+			m_stringLog.WriteLine(m_formatter(loggerName, logLevel, eventId, message, exception, state, null));
 	    }
 
 	    private bool IsEnabled(string loggerName, LogLevel logLevel) => m_filter(loggerName, logLevel);

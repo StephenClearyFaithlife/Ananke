@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace Faithlife.Ananke.Logging
@@ -17,7 +18,7 @@ namespace Faithlife.Ananke.Logging
 			{
 				if (!IsEnabled(logLevel))
 					return;
-				m_provider.Log(m_name, logLevel, eventId, formatter(state, exception) ?? "", exception);
+				m_provider.Log(m_name, logLevel, eventId, formatter(state, exception) ?? "", exception, state as IEnumerable<KeyValuePair<string, object>>);
 			}
 
 			public bool IsEnabled(LogLevel logLevel) => m_provider.IsEnabled(m_name, logLevel);
