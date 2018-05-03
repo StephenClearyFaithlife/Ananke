@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Loader;
 using System.Threading;
@@ -13,8 +14,8 @@ namespace TimerSample
 
 		static void Main() => AnankeRunner.Main(Settings, async context =>
 		{
-			Console.SetOut(context.FormattedConsoleStdout);
-			Console.SetError(context.FormattedConsoleStdout);
+			Console.SetOut(context.LoggingConsoleStdout);
+			Console.SetError(context.LoggingConsoleStdout);
 
 			while (true)
 			{
