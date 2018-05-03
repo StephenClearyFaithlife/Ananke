@@ -81,6 +81,9 @@ namespace Faithlife.Ananke
 	    {
 		    try
 		    {
+			    var hostname = Environment.GetEnvironmentVariable("HOSTNAME") ?? Environment.GetEnvironmentVariable("COMPUTERNAME");
+				m_log.Starting(hostname);
+
 			    // Hook signals.
 			    m_settings.SignalService.AddHandler(signalName =>
 			    {
@@ -94,8 +97,10 @@ namespace Faithlife.Ananke
 				// Exit after our maximum runtime.
 				ShutdownAfterMaximumRuntime();
 
-			    var exitCode = action(m_context).GetAwaiter().GetResult();
-				SetExitCode(exitCode);
+			    int exitCode;
+			    using (m_log.BeginScope("Host {hostname}", hostname))
+				    exitCode = action(m_context).GetAwaiter().GetResult();
+			    SetExitCode(exitCode);
 			    return exitCode;
 		    }
 		    catch (OperationCanceledException) when (m_exitRequested.IsCancellationRequested)

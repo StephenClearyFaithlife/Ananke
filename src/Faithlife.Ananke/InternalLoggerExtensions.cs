@@ -17,6 +17,7 @@ namespace Faithlife.Ananke
 	    public static void UnhandledAppDomainException(this ILogger logger, Exception exception) => s_unhandledAppDomainException(logger, exception);
 	    public static void UnhandledApplicationException(this ILogger logger, Exception exception) => s_unhandledApplicationException(logger, exception);
 	    public static void IgnoringOperationCanceledException(this ILogger logger) => s_ignoringOperationCanceledException(logger, null);
+	    public static void Starting(this ILogger logger, string hostname) => s_starting(logger, hostname, null);
 
 		private static readonly Action<ILogger, TimeSpan, Exception> s_maximumRuntime =
 		    LoggerMessage.Define<TimeSpan>(LogLevel.Information, new EventId(1, nameof(MaximumRuntime)), "Maximum runtime set to {shutdownAfter}.");
@@ -30,5 +31,7 @@ namespace Faithlife.Ananke
 		    LoggerMessage.Define(LogLevel.Error, new EventId(5, nameof(UnhandledApplicationException)), "Unhandled application exception.");
 	    private static readonly Action<ILogger, Exception> s_ignoringOperationCanceledException =
 		    LoggerMessage.Define(LogLevel.Debug, new EventId(6, nameof(UnhandledApplicationException)), "Ignoring OperationCanceledException since we are shutting down.");
+		private static readonly Action<ILogger, string, Exception> s_starting =
+			LoggerMessage.Define<string>(LogLevel.Information, new EventId(7, nameof(Starting)), "Starting on instance {hostname}.");
     }
 }
