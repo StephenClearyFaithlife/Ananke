@@ -14,7 +14,8 @@ namespace Faithlife.Ananke.Tests
 	    public void ExceptionLogging_EscapesEolCharacters()
 	    {
 		    var settings = new StubbedSettings();
-		    AnankeRunner.Main(settings, (Action<AnankeContext>) (_ => throw new InvalidOperationException()));
+		    AnankeRunner.Main(settings, (Action<AnankeContext>) (_ => throw new InvalidOperationException("test message")));
+		    Assert.That(settings.StubStringLog.Messages, Has.Some.Contains("test message"));
 		    Assert.That(settings.StubStringLog.Messages, Has.None.Contains("\n"));
 	    }
 
