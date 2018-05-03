@@ -2,10 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke.Logging.Internal
 {
 	/// <inheritdoc />
 	/// <summary>
@@ -39,7 +38,7 @@ namespace Faithlife.Ananke.Logging
 	    {
 			if (categoryName == null)
 				throw new ArgumentNullException(nameof(categoryName));
-			return m_loggers.GetOrAdd(categoryName, name => new AnankeLogger(this, name));
+			return m_loggers.GetOrAdd(categoryName, name => new AnankeLoggerProvider.AnankeLogger(this, name));
 		}
 
 	    void IDisposable.Dispose() { }

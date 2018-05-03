@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke.Logging.Internal
 {
 	/// <summary>
 	/// A string log that writes to an <see cref="ILogger"/>.
 	/// </summary>
-    public sealed class LoggingStringLog : IStringLog
+    internal sealed class LoggingStringLog : IStringLog
     {
 	    /// <summary>
 	    /// Creates a string log that writes to loggers provided by the given logger provider.

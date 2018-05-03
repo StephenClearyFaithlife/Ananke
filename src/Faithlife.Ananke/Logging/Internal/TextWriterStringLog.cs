@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke.Logging.Internal
 {
 	/// <inheritdoc/>
 	/// This type writes all string messages to a text writer, without any escaping. This type is threadsafe if its underlying <see cref="TextWriter"/> is threadsafe.

@@ -2,9 +2,8 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Faithlife.Ananke.Services;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke.Logging.Internal
 {
 	/// <summary>
 	/// A text writer that writes to a string log only when an explicit <c>WriteLine</c>/<c>WriteLineAsync</c> is requested or <c>Flush</c>/<c>FlushAsync</c> is invoked.

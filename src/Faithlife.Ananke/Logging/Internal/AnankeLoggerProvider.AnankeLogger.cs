@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
-namespace Faithlife.Ananke.Logging
+namespace Faithlife.Ananke.Logging.Internal
 {
 	internal sealed partial class AnankeLoggerProvider
 	{
 		private sealed class AnankeLogger : ILogger
 		{
-			public AnankeLogger(AnankeLoggerProvider provider, string name)
+			public AnankeLogger(Internal.AnankeLoggerProvider provider, string name)
 			{
 				m_provider = provider;
 				m_name = name;
@@ -25,7 +25,7 @@ namespace Faithlife.Ananke.Logging
 
 			public IDisposable BeginScope<TState>(TState state) => m_provider.BeginScope(state);
 
-			private readonly AnankeLoggerProvider m_provider;
+			private readonly Internal.AnankeLoggerProvider m_provider;
 			private readonly string m_name;
 		}
 	}
