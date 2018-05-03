@@ -8,7 +8,6 @@ namespace Faithlife.Ananke.Logging
 {
 	/// <summary>
 	/// A text writer that writes to a string log only when an explicit <c>WriteLine</c>/<c>WriteLineAsync</c> is requested or <c>Flush</c>/<c>FlushAsync</c> is invoked.
-	/// This text writer is threadsafe, but may invoke its wrapped <see cref="IStringLog"/> concurrently.
 	/// </summary>
     public sealed class StringLogTextWriter: TextWriter
 	{
@@ -38,13 +37,8 @@ namespace Faithlife.Ananke.Logging
 		/// <inheritdoc/>
 		public override void Flush()
 		{
-			string text;
-			lock (m_writer)
-			{
-				text = m_writer.ToString();
-				m_writer.GetStringBuilder().Clear();
-			}
-
+			var text = m_writer.ToString();
+			m_writer.GetStringBuilder().Clear();
 			if (text != "")
 				m_stringLog.WriteLine(text);
 		}
@@ -57,157 +51,55 @@ namespace Faithlife.Ananke.Logging
 		}
 
 		/// <inheritdoc/>
-		public override void Write(char value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(char value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(bool value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(bool value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(char[] buffer)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(buffer);
-			}
-		}
+		public override void Write(char[] buffer) => m_writer.Write(buffer);
 
 		/// <inheritdoc/>
-		public override void Write(char[] buffer, int index, int count)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(buffer, index, count);
-			}
-		}
+		public override void Write(char[] buffer, int index, int count) => m_writer.Write(buffer, index, count);
 
 		/// <inheritdoc/>
-		public override void Write(decimal value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(decimal value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(double value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(double value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(int value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(int value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(long value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(long value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(object value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(object value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(float value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(float value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(string value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(string value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(string format, object arg0)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(format, arg0);
-			}
-		}
+		public override void Write(string format, object arg0) => m_writer.Write(format, arg0);
 
 		/// <inheritdoc/>
-		public override void Write(string format, object arg0, object arg1)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(format, arg0, arg1);
-			}
-		}
+		public override void Write(string format, object arg0, object arg1) => m_writer.Write(format, arg0, arg1);
 
 		/// <inheritdoc/>
-		public override void Write(string format, object arg0, object arg1, object arg2)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(format, arg0, arg1, arg2);
-			}
-		}
+		public override void Write(string format, object arg0, object arg1, object arg2) => m_writer.Write(format, arg0, arg1, arg2);
 
 		/// <inheritdoc/>
-		public override void Write(string format, params object[] arg)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(format, arg);
-			}
-		}
+		public override void Write(string format, params object[] arg) => m_writer.Write(format, arg);
 
 		/// <inheritdoc/>
-		public override void Write(uint value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(uint value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
-		public override void Write(ulong value)
-		{
-			lock (m_writer)
-			{
-				m_writer.Write(value);
-			}
-		}
+		public override void Write(ulong value) => m_writer.Write(value);
 
 		/// <inheritdoc/>
 		public override Task WriteAsync(char value)
@@ -233,13 +125,8 @@ namespace Faithlife.Ananke.Logging
 		/// <inheritdoc/>
 		public override void WriteLine()
 		{
-			string text;
-			lock (m_writer)
-			{
-				text = m_writer.ToString();
-				m_writer.GetStringBuilder().Clear();
-			}
-
+			var text = m_writer.ToString();
+			m_writer.GetStringBuilder().Clear();
 			m_stringLog.WriteLine(text);
 		}
 
