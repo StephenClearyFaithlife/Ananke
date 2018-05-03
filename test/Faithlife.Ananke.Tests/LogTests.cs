@@ -32,7 +32,7 @@ namespace Faithlife.Ananke.Tests
 		{
 			var actualState = new List<KeyValuePair<string, object>>();
 			string TestFormatter(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
-				IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope)
+				IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope, IEnumerable<string> scopeMessages)
 			{
 				actualState.AddRange(state);
 				return message;

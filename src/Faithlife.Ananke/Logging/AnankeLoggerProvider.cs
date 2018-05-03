@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
@@ -42,9 +43,10 @@ namespace Faithlife.Ananke.Logging
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
 		/// <param name="state">The structured state for the message, if any. May be <c>null</c>.</param>
-		/// <param name="scope">The structured scope for the message, if any. May be <c>null</c>.</param>
+		/// <param name="scope">The structured scope for the message, if any. May be an empty sequence.</param>
+		/// <param name="scopeMessages">The scope for the message (as strings), if any. May be an empty sequence.</param>
 		public delegate string Formatter(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
-			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope);
+			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope, IEnumerable<string> scopeMessages);
 
 		/// <summary>
 		/// Determines whether a log event is enabled. Any events for which this method returns <c>false</c> are not logged.
@@ -67,7 +69,11 @@ namespace Faithlife.Ananke.Logging
 	    {
 		    if (message == "" && exception == null)
 			    return;
-			m_stringLog.WriteLine(m_formatter(loggerName, logLevel, eventId, message, exception, state, null));
+			// TODO: collect scope information and pass along
+		    var text = m_formatter(loggerName, logLevel, eventId, message, exception, state,
+			    Enumerable.Empty<IEnumerable<KeyValuePair<string, object>>>(),
+			    Enumerable.Empty<string>());
+			m_stringLog.WriteLine(text);
 	    }
 
 	    private bool IsEnabled(string loggerName, LogLevel logLevel) => m_filter(loggerName, logLevel);

@@ -20,9 +20,10 @@ namespace Faithlife.Ananke
 		/// <param name="message">The message. May not be <c>null</c>, but may be the empty string.</param>
 		/// <param name="exception">The exception, if any. May be <c>null</c>.</param>
 		/// <param name="state">The structured state for the message, if any. May be <c>null</c>.</param>
-		/// <param name="scope">The structured scope for the message, if any. May be <c>null</c>.</param>
-	    public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
-			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope)
+		/// <param name="scope">The structured scope for the message, if any. May be an empty sequence.</param>
+		/// <param name="scopeMessages">The scope for the message (as strings), if any. May be an empty sequence.</param>
+		public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
+			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope, IEnumerable<string> scopeMessages)
 	    {
 		    if (message == "")
 			    message = "Exception";
@@ -32,8 +33,9 @@ namespace Faithlife.Ananke
 		    sb.Append(Escaping.BackslashEscape(loggerName));
 		    if (eventId.Id != 0)
 			    sb.Append("(" + eventId.Id + ")");
-			// TODO: scope goes here.
-			sb.Append(": ");
+		    sb.Append(": ");
+		    foreach (var scopeMessage in scopeMessages)
+			    sb.Append(scopeMessage + ": ");
 		    sb.Append(Escaping.BackslashEscape(message));
 		    if (exception != null)
 		    {
