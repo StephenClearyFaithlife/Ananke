@@ -16,21 +16,14 @@ namespace Faithlife.Ananke
 	public sealed class AnankeSettings
 	{
 		/// <summary>
-		/// A delegate that parses <paramref name="message"/> and logs it to <paramref name="loggerProvider"/>.
-		/// </summary>
-		/// <param name="message">The message; this is a text that has been written to the console.</param>
-		/// <param name="loggerProvider">The logger provider to log to.</param>
-		public delegate void StdoutParserDelegate(string message, ILoggerProvider loggerProvider);
-
-		/// <summary>
 		/// The maximum amount of time the application will run.
 		/// </summary>
 		public TimeSpan MaximumRuntime { get; }
 
 		/// <summary>
-		/// The core logging provider used by all structured logging.
+		/// The core logging factory used by all structured logging.
 		/// </summary>
-		public ILoggerProvider LoggerProvider { get; }
+		public ILoggerFactory LoggerFactory { get; }
 
 		/// <summary>
 		/// The amonut of time application code has after it is requested to exit, before the process forcibly exits.
@@ -46,7 +39,7 @@ namespace Faithlife.Ananke
 		/// <summary>
 		/// A method that parses text written to stdout.
 		/// </summary>
-		public StdoutParserDelegate StdoutParser { get; }
+		public StdoutParser StdoutParser { get; }
 
 		/// <summary>
 		/// Service that writes strings to the console. The strings passed to this log will not contain EOL characters.
@@ -67,23 +60,23 @@ namespace Faithlife.Ananke
 		/// Creates an instance of <see cref="AnankeSettings"/>, with default settings for any setting not specified.
 		/// </summary>
 		/// <param name="maximumRuntime">The amonut of time application code should run until it is requested to exit. Defaults to infinite, but most apps should use a non-infinite time.</param>
-		/// <param name="loggerProvider">The core logging provider used by all structured logging. Defaults to a logging provider that writes formatted text to <see cref="ConsoleLog"/>.</param>
-		/// <param name="loggerIsEnabledFilter">The filter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerProvider"/> is <c>null</c>.</param>
-		/// <param name="loggerFormatter">The formatter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerProvider"/> is <c>null</c>.</param>
+		/// <param name="loggerFactory">The core logging factory used by all structured logging. Defaults to a logging factory with a single provider that writes formatted text to <see cref="ConsoleLog"/>.</param>
+		/// <param name="loggerIsEnabledFilter">The filter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerFactory"/> is <c>null</c>.</param>
+		/// <param name="loggerFormatter">The formatter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerFactory"/> is <c>null</c>.</param>
 		/// <param name="exitTimeout">The amonut of time application code has after it is requested to exit, before the process forcibly exits. Defaults to 10 seconds.</param>
 		/// <param name="randomMaximumRuntimeRelativeDelta">The amount of random fluction in <see cref="MaximumRuntime"/>. E.g., <c>0.10</c> is a 10% change; if <see cref="MaximumRuntime"/> is 30 minutes, then the actual maximum runtime would be a random value between 27 and 33 minutes. Defaults to 0.10 (10%).</param>
 		/// <param name="stdoutParser">A method that parses text written to stdout.</param>
-		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, ILoggerProvider loggerProvider = null,
+		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, ILoggerFactory loggerFactory = null,
 			LoggerIsEnabledFilter loggerIsEnabledFilter = null, LoggerFormatter loggerFormatter = null,
-			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParserDelegate stdoutParser = null)
+			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParser stdoutParser = null)
 		{
-			return InternalCreate(maximumRuntime, loggerProvider, loggerIsEnabledFilter, loggerFormatter,
+			return InternalCreate(maximumRuntime, loggerFactory, loggerIsEnabledFilter, loggerFormatter,
 				exitTimeout, randomMaximumRuntimeRelativeDelta, stdoutParser);
 		}
 
-		internal static AnankeSettings InternalCreate(TimeSpan? maximumRuntime = null, ILoggerProvider loggerProvider = null,
+		internal static AnankeSettings InternalCreate(TimeSpan? maximumRuntime = null, ILoggerFactory loggerFactory = null,
 			LoggerIsEnabledFilter loggerIsEnabledFilter = null, LoggerFormatter loggerFormatter = null,
-			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParserDelegate stdoutParser = null, IStringLog consoleLog = null,
+			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParser stdoutParser = null, IStringLog consoleLog = null,
 			IExitProcessService exitProcessService = null, ISignalService signalService = null)
 		{
 			if (signalService == null)
@@ -97,8 +90,15 @@ namespace Faithlife.Ananke
 			consoleLog = consoleLog ?? new TextWriterStringLog(Console.Out);
 			loggerFormatter = loggerFormatter ?? AnankeFormatters.FormattedText;
 			loggerIsEnabledFilter = loggerIsEnabledFilter ?? ((_, __) => true);
+			var loggerProvider = new AnankeLoggerProvider(consoleLog, loggerFormatter, loggerIsEnabledFilter);
+			if (loggerFactory == null)
+			{
+				loggerFactory = new LoggerFactory();
+				loggerFactory.AddProvider(loggerProvider);
+			}
+
 			return new AnankeSettings(maximumRuntime ?? Timeout.InfiniteTimeSpan,
-				loggerProvider ?? new AnankeLoggerProvider(consoleLog, loggerFormatter, loggerIsEnabledFilter),
+				loggerFactory,
 				exitTimeout ?? TimeSpan.FromSeconds(10),
 				randomMaximumRuntimeRelativeDelta ?? 0.10,
 				stdoutParser ?? ((message, provider) => provider.CreateLogger("App").LogInformation(message)),
@@ -107,11 +107,11 @@ namespace Faithlife.Ananke
 				signalService);
 		}
 
-		private AnankeSettings(TimeSpan maximumRuntime, ILoggerProvider loggerProvider, TimeSpan exitTimeout, double randomMaximumRuntimeRelativeDelta,
-			StdoutParserDelegate stdoutParser, IStringLog consoleLog, IExitProcessService exitProcessService, ISignalService signalService)
+		private AnankeSettings(TimeSpan maximumRuntime, ILoggerFactory loggerFactory, TimeSpan exitTimeout, double randomMaximumRuntimeRelativeDelta,
+			StdoutParser stdoutParser, IStringLog consoleLog, IExitProcessService exitProcessService, ISignalService signalService)
 	    {
 			MaximumRuntime = maximumRuntime;
-		    LoggerProvider = loggerProvider;
+		    LoggerFactory = loggerFactory;
 			ExitTimeout = exitTimeout;
 		    RandomMaximumRuntimeRelativeDelta = randomMaximumRuntimeRelativeDelta;
 		    StdoutParser = stdoutParser;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Faithlife.Ananke.Tests.Util
 {
@@ -13,6 +14,8 @@ namespace Faithlife.Ananke.Tests.Util
 	    public TimeSpan StubMaximumRuntime { get; set; } = Timeout.InfiniteTimeSpan;
 
 	    public TimeSpan StubExitTimeout { get; set; } = TimeSpan.FromSeconds(1);
+
+	    public StubLoggerProvider StubLoggerProvider { get; set; } = null;
 
 	    public LoggerFormatter Formatter { get; set; } = null;
 
@@ -24,9 +27,16 @@ namespace Faithlife.Ananke.Tests.Util
 
 	    public static implicit operator AnankeSettings(StubbedSettings stubs)
 	    {
+		    ILoggerFactory loggerFactory = null;
+		    if (stubs.StubLoggerProvider != null)
+		    {
+				loggerFactory = new LoggerFactory();
+				loggerFactory.AddProvider(stubs.StubLoggerProvider);
+		    }
+
 			return AnankeSettings.InternalCreate(maximumRuntime: stubs.StubMaximumRuntime, exitTimeout: stubs.StubExitTimeout,
 				consoleLog: stubs.StubStringLog, loggerFormatter: stubs.Formatter, exitProcessService: stubs.StubExitProcessService,
-				signalService: stubs.StubSignalService);
+				signalService: stubs.StubSignalService, loggerFactory: loggerFactory);
 	    }
 	}
 }

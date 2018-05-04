@@ -65,10 +65,10 @@ namespace Faithlife.Ananke
 	    private AnankeRunner(AnankeSettings settings)
 	    {
 		    m_settings = settings;
-		    m_log = m_settings.LoggerProvider.CreateLogger("Ananke");
+		    m_log = m_settings.LoggerFactory.CreateLogger("Ananke");
 		    m_exitRequested = new CancellationTokenSource();
-			var loggingConsoleStdout = new StringLogTextWriter(new LoggingStringLog(m_settings.LoggerProvider, m_settings.StdoutParser));
-			m_context = new AnankeContext(m_settings.LoggerProvider, m_exitRequested.Token, loggingConsoleStdout);
+			var loggingConsoleStdout = new StringLogTextWriter(new LoggingStringLog(m_settings.LoggerFactory, m_settings.StdoutParser));
+			m_context = new AnankeContext(m_settings.LoggerFactory, m_exitRequested.Token, loggingConsoleStdout);
 		    m_done = new ManualResetEventSlim();
 			m_exitCodeMutex = new object();
 	    }
