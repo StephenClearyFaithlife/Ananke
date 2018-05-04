@@ -5,7 +5,7 @@ A library to help .NET Core Console applications adhere to Docker conventions, n
 
 Change your Console app's `Main` method to invoke `AnankeRunner.Main`, as such:
 
-```
+```C#
 using Faithlife.Ananke;
 
 class Program
@@ -27,11 +27,13 @@ There are three Ananke types used in this code:
 
 Ananke passes a `CancellationToken` to your application logic called `AnankeContext.ExitRequested`. This token is cancelled whenever your application is requested to shut down. When `ExitRequested` is cancelled, your application logic should stop taking on new work, finish processing the current work it already has, and then return. If it does not do this, then its processing will be aborted when the application exits.
 
-Also, you should strongly consider setting `AnankeSettings.MaximumRuntime`. Giving this property a reasonable value will ensure your application will exit after a maximum amount of time. If your application is being orchestrated (e.g., in a Kubernetes Deployment), then you can set `MaximumRuntime` to create a "phoenix service" - one that periodically exits of its own free will and is then reborn by the orchestrator.
+Ananke also passes an `ILoggerFactory` to your application logic called `AnankeContext.LoggerFactory`, which you can use to construct an `ILogger` and log to.
+
+Finally, you should strongly consider setting `AnankeSettings.MaximumRuntime`. Giving this property a reasonable value will ensure your application will exit after a maximum amount of time. If your application is being orchestrated (e.g., in a Kubernetes Deployment), then you can set `MaximumRuntime` to create a "phoenix service" - one that periodically exits of its own free will and is then reborn by the orchestrator.
 
 Taking these aspects into account, a more realistic example of Ananke usage is:
 
-```
+```C#
 using Faithlife.Ananke;
 
 class Program
@@ -40,6 +42,8 @@ class Program
 
 	static void Main(string[] args) => AnankeRunner.Main(Settings, async context =>
 	{
+		var logger = context.LoggerFactory.CreateLogger("MyApp");
+
 		while (!context.ExitRequested.IsCancellationRequested)
 		{
 			// Wait for the next work item to be available, and retrieve it.
@@ -47,13 +51,14 @@ class Program
 			var workItem = await GetNextWorkItemAsync(context.ExitRequested);
 
 			// Process the work item. Ignore requests to exit.
+			logger.LogInformation("Processing {workItemId}", workItem.Id);
 			ProcessWorkItem(workItem);
 		}
 	});
 }
 ```
 
-The actual shutdown time is randomly "fuzzed" a bit by default (see `AnankeSettings.RandomMaximumRuntimeRelativeDelta`). The default value for this is `0.1` (i.e., +/- 10%), so the *actual* maximum runtime of the code above will vary by 12 minutes (10% of 2 hours), and be a random value between 1:48 and 2:12. This is just to avoid all applications from exiting at the exact same time, even if they were all started at the same time.
+The actual shutdown time is randomly "fuzzed" a bit by default (see `AnankeSettings.RandomMaximumRuntimeRelativeDelta`). The default value for this is `0.1` (i.e., +/- 10%), so the *actual* maximum runtime of the code above will vary by +/- 12 minutes (10% of 2 hours), and be a random value between 1:48 and 2:12. This is just to avoid all applications from exiting at the exact same time, even if they were all started at the same time.
 
 # Doker Conventions
 
@@ -86,24 +91,44 @@ When a signal comes in, Ananke will start a kill timer (see `AnankeSettings.Exit
 
 Docker expects logs to be written to stdout (or stderr), with *one line per log message*.
 
-Ananke formats logs messages on a single line using backslash-escaping. It then writes the log messages to stdout through a logging service (see `AnankeSettings.ConsoleLogService`).
+Ananke has a core logging factory, exposed at `AnankeContext.LoggingFactory`. All of Ananke's logs go through this factory (using the `"Ananke"` category/logger name), and this same factory can be used to create application logs.
 
-### Intercepting Console Stdout and Stderr
+By default, all log messages sent to `AnankeContext.LoggingFactory` are formatted on a single line using backslash-escaping. These lines are then written to stdout.
+
+### Redirecting Ananke Logs
+
+Docker applications that deliberately do their own logging directly will want to redirect Ananke's logging. This is done by setting `AnankeSettings.LoggingFactory` before calling into Ananke. Ananke will then use the provided `ILoggerFactory` instead of its own factory and provider.
+
+```C#
+static void Main(string[] args)
+{
+	var myLoggerFactory = new LoggerFactory();
+	myLoggerFactory.AddMyOwnProvider(); // log4net, seq, gelf, whatever...
+
+	var anankeSettings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromHours(2), loggerFactory: myLoggerFactory);
+ 	AnankeRunner.Main(anankeSettings, context =>
+	{
+		var loggerFactory = context.LoggerFactory; // Same instance as `myLoggerFactory` that we passed into the settings.
+	});
+}
+```
+
+This way you can send Ananke's own logs to your customized logging provider instead of as stdout to Docker.
+
+### Intercepting Console Stdout and Stderr (Advanced)
 
 Ananke does *not* intercept any application-level logs by default. Any direct console output from application logic is passed straight through. It is possible to intercept console output as such:
 
-```
-static void Main(string[] args) => Runner.Main(Settings.Create(), context =>
+```C#
+static void Main(string[] args) => AnankeRunner.Main(AnankeSettings.Create(), context =>
 {
-	Console.SetOut(context.EscapedConsoleStdout);
-	Console.SetError(context.EscapedConsoleStderr);
+	Console.SetOut(context.LoggingConsoleStdout);
+	Console.SetError(context.LoggingConsoleStdout);
 
-	Console.WriteLine("Hello\nWorld!"); // Written to stdout as one line, not two
+	Console.WriteLine("Hello\nWorld!"); // Formatted and written to stdout as one line, not two
 });
 ```
 
-Please note that intercepted console outputs *require* the use of `WriteLine`. Code such as this will write `Hello World!\\n` to the console, not `Hello World!\n`, and will be interpreted by Docker as a log message that has not yet completed:
+Please note that intercepted console outputs *require* the use of `WriteLine`. Code such as `Console.Write("Hello World!\n")` will write `Hello World!\\n`, not `Hello World!\n`, and will be interpreted as a log message that has not yet completed.
 
-```
-Console.Write("Hello World!\n");
-```
+Redirected console output using `AnankeContext.LoggingConsoleStdout` captures all writes, and when `WriteLine` is invoked, it sends the log string to `AnankeContext.LoggingFactory`. If you specify a custom `AnankeSettings.LoggingFactory`, then you can use this technique to redirect all `Console.WriteLine` calls to your own logging provider.
