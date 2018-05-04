@@ -10,7 +10,7 @@ namespace Faithlife.Ananke
 	/// Log formatters.
 	/// </summary>
 	public static class AnankeFormatters
-    {
+	{
 		/// <summary>
 		/// A formatter that formats logs messages as formatted plain-text.
 		/// </summary>
@@ -22,48 +22,51 @@ namespace Faithlife.Ananke
 		/// <param name="state">The structured state for the message, if any. May be <c>null</c>.</param>
 		/// <param name="scope">The structured scope for the message, if any. May be an empty sequence.</param>
 		/// <param name="scopeMessages">The scope for the message (as strings), if any. May be an empty sequence.</param>
-		public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message, Exception exception,
-			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope, IEnumerable<string> scopeMessages)
-	    {
-		    if (message == "")
-			    message = "Exception";
+		public static string FormattedText(string loggerName, LogLevel logLevel, EventId eventId, string message,
+			Exception exception,
+			IEnumerable<KeyValuePair<string, object>> state, IEnumerable<IEnumerable<KeyValuePair<string, object>>> scope,
+			IEnumerable<string> scopeMessages)
+		{
+			if (message == "")
+				message = "Exception";
 
-		    var sb = new StringBuilder();
-		    sb.Append(FormattedTextLogLevel(logLevel));
-		    sb.Append(Escaping.BackslashEscape(loggerName));
-		    if (eventId.Id != 0)
-			    sb.Append("(" + eventId.Id + ")");
-		    sb.Append(": ");
-		    foreach (var scopeMessage in scopeMessages)
-			    sb.Append(Escaping.BackslashEscape(scopeMessage) + ": ");
-		    sb.Append(Escaping.BackslashEscape(message));
-		    if (exception != null)
-		    {
-			    sb.Append(": ");
-			    sb.Append(Escaping.BackslashEscape(exception.ToString()));
-		    }
+			var sb = new StringBuilder();
+			sb.Append(FormattedTextLogLevel(logLevel));
+			sb.Append(Escaping.BackslashEscape(loggerName));
+			if (eventId.Id != 0)
+				sb.Append("(" + eventId.Id + ")");
+			sb.Append(": ");
+			foreach (var scopeMessage in scopeMessages)
+				sb.Append(Escaping.BackslashEscape(scopeMessage) + ": ");
+			sb.Append(Escaping.BackslashEscape(message));
+			if (exception != null)
+			{
+				sb.Append(": ");
+				sb.Append(Escaping.BackslashEscape(exception.ToString()));
+			}
 
-		    return sb.ToString();
-	    }
+			return sb.ToString();
+		}
 
-	    private static string FormattedTextLogLevel(LogLevel logLevel)
-	    {
-		    switch (logLevel)
-		    {
-		    case LogLevel.Trace:
-			    return "T ";
-		    case LogLevel.Debug:
-			    return "D ";
-		    case LogLevel.Information:
-			    return "I ";
-		    case LogLevel.Warning:
-			    return "W ";
-		    case LogLevel.Error:
-			    return "E ";
-		    case LogLevel.Critical:
-			    return "C ";
-		    }
+		private static string FormattedTextLogLevel(LogLevel logLevel)
+		{
+			switch (logLevel)
+			{
+			case LogLevel.Trace:
+				return "T ";
+			case LogLevel.Debug:
+				return "D ";
+			case LogLevel.Information:
+				return "I ";
+			case LogLevel.Warning:
+				return "W ";
+			case LogLevel.Error:
+				return "E ";
+			case LogLevel.Critical:
+				return "C ";
+			}
+
 			throw new InvalidOperationException($"Unknown LogLevel {logLevel}");
-	    }
-    }
+		}
+	}
 }

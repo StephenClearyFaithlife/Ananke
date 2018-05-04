@@ -76,7 +76,8 @@ namespace Faithlife.Ananke
 
 		internal static AnankeSettings InternalCreate(TimeSpan? maximumRuntime = null, ILoggerFactory loggerFactory = null,
 			LoggerIsEnabledFilter loggerIsEnabledFilter = null, LoggerFormatter loggerFormatter = null,
-			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParser stdoutParser = null, IStringLog consoleLog = null,
+			TimeSpan? exitTimeout = null, double? randomMaximumRuntimeRelativeDelta = null, StdoutParser stdoutParser = null,
+			IStringLog consoleLog = null,
 			IExitProcessService exitProcessService = null, ISignalService signalService = null)
 		{
 			if (signalService == null)
@@ -107,17 +108,19 @@ namespace Faithlife.Ananke
 				signalService);
 		}
 
-		private AnankeSettings(TimeSpan maximumRuntime, ILoggerFactory loggerFactory, TimeSpan exitTimeout, double randomMaximumRuntimeRelativeDelta,
-			StdoutParser stdoutParser, IStringLog consoleLog, IExitProcessService exitProcessService, ISignalService signalService)
-	    {
+		private AnankeSettings(TimeSpan maximumRuntime, ILoggerFactory loggerFactory, TimeSpan exitTimeout,
+			double randomMaximumRuntimeRelativeDelta,
+			StdoutParser stdoutParser, IStringLog consoleLog, IExitProcessService exitProcessService,
+			ISignalService signalService)
+		{
 			MaximumRuntime = maximumRuntime;
-		    LoggerFactory = loggerFactory;
+			LoggerFactory = loggerFactory;
 			ExitTimeout = exitTimeout;
-		    RandomMaximumRuntimeRelativeDelta = randomMaximumRuntimeRelativeDelta;
-		    StdoutParser = stdoutParser;
-		    ConsoleLog = consoleLog;
-		    ExitProcessService = exitProcessService;
-		    SignalService = signalService;
-	    }
-    }
+			RandomMaximumRuntimeRelativeDelta = randomMaximumRuntimeRelativeDelta;
+			StdoutParser = stdoutParser;
+			ConsoleLog = consoleLog;
+			ExitProcessService = exitProcessService;
+			SignalService = signalService;
+		}
+	}
 }

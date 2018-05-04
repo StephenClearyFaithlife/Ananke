@@ -10,8 +10,8 @@ namespace Faithlife.Ananke
 	/// <summary>
 	/// The execution context for the application.
 	/// </summary>
-    public sealed class AnankeContext
-    {
+	public sealed class AnankeContext
+	{
 		/// <summary>
 		/// Creates an execution context for application code.
 		/// </summary>
@@ -30,14 +30,14 @@ namespace Faithlife.Ananke
 		/// </summary>
 		public ILoggerFactory LoggerFactory { get; }
 
-	    /// <summary>
-	    /// The application has been requested to exit.
-	    /// </summary>
-	    public CancellationToken ExitRequested { get; }
+		/// <summary>
+		/// The application has been requested to exit.
+		/// </summary>
+		public CancellationToken ExitRequested { get; }
 
 		/// <summary>
 		/// A text writer that writes to <see cref="LoggerFactory"/>. You must explicitly request a log event by calling one of the <c>WriteLine</c> methods.
 		/// </summary>
 		public TextWriter LoggingConsoleStdout { get; }
-    }
+	}
 }

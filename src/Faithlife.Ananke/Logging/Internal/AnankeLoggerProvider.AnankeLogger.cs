@@ -14,11 +14,13 @@ namespace Faithlife.Ananke.Logging.Internal
 				m_name = name;
 			}
 
-			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+				Func<TState, Exception, string> formatter)
 			{
 				if (!IsEnabled(logLevel))
 					return;
-				m_provider.Log(m_name, logLevel, eventId, formatter(state, exception) ?? "", exception, state as IEnumerable<KeyValuePair<string, object>>);
+				m_provider.Log(m_name, logLevel, eventId, formatter(state, exception) ?? "", exception,
+					state as IEnumerable<KeyValuePair<string, object>>);
 			}
 
 			public bool IsEnabled(LogLevel logLevel) => m_provider.IsEnabled(m_name, logLevel);

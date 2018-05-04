@@ -8,7 +8,7 @@ namespace Faithlife.Ananke.Logging.Internal
 	/// <summary>
 	/// A text writer that writes to a string log only when an explicit <c>WriteLine</c>/<c>WriteLineAsync</c> is requested or <c>Flush</c>/<c>FlushAsync</c> is invoked.
 	/// </summary>
-    internal sealed class StringLogTextWriter: TextWriter
+	internal sealed class StringLogTextWriter : TextWriter
 	{
 		/// <summary>
 		/// Creates a new text writer that writes to the specified string log only when an explicit <c>WriteLine</c> is requested.
@@ -89,7 +89,8 @@ namespace Faithlife.Ananke.Logging.Internal
 		public override void Write(string format, object arg0, object arg1) => m_writer.Write(format, arg0, arg1);
 
 		/// <inheritdoc/>
-		public override void Write(string format, object arg0, object arg1, object arg2) => m_writer.Write(format, arg0, arg1, arg2);
+		public override void Write(string format, object arg0, object arg1, object arg2) =>
+			m_writer.Write(format, arg0, arg1, arg2);
 
 		/// <inheritdoc/>
 		public override void Write(string format, params object[] arg) => m_writer.Write(format, arg);

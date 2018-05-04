@@ -37,25 +37,28 @@ namespace Faithlife.Ananke.Services
 				Handler?.Invoke(controlType.ToString());
 				return true;
 			}
+
 			return false;
 		}
 
-		private enum ConsoleControlEvent: uint
-	    {
-		    CTRL_C_EVENT = 0,
-		    CTRL_CLOSE_EVENT = 2,
-		    CTRL_SHUTDOWN_EVENT = 6,
+		private enum ConsoleControlEvent : uint
+		{
+			CTRL_C_EVENT = 0,
+			CTRL_CLOSE_EVENT = 2,
+			CTRL_SHUTDOWN_EVENT = 6,
 		}
 
 		[UnmanagedFunctionPointer(CallingConvention.Winapi)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private delegate bool SetConsoleCtrlHandler_HandlerRoutine(ConsoleControlEvent controlType);
 
-	    [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-	    [return: MarshalAs(UnmanagedType.Bool)]
-		private static extern bool SetConsoleCtrlHandler(SetConsoleCtrlHandler_HandlerRoutine handler, [MarshalAs(UnmanagedType.Bool)] bool add);
+		[DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		private static extern bool SetConsoleCtrlHandler(SetConsoleCtrlHandler_HandlerRoutine handler,
+			[MarshalAs(UnmanagedType.Bool)] bool add);
 
 		private event Action<string> Handler;
+
 		// ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
 		private readonly SetConsoleCtrlHandler_HandlerRoutine m_handlerRoutine;
 	}
