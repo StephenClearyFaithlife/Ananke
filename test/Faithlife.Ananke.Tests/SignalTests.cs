@@ -98,7 +98,7 @@ namespace Faithlife.Ananke.Tests
 	    }
 
 	    [Test]
-	    public void Signal_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode65()
+	    public void Signal_WhenApplicationCodeTakesTooLong_ExitsProcessWithCode66()
 	    {
 		    var settings = new StubbedSettings();
 
@@ -113,7 +113,7 @@ namespace Faithlife.Ananke.Tests
 
 		    Task.Run(() => settings.StubSignalService.Invoke("testSignal"));
 		    Thread.Sleep(settings.StubExitTimeout * 2);
-		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(65));
+		    Assert.That(settings.StubExitProcessService.ExitCode, Is.EqualTo(66));
 
 		    finish.Set();
 	    }

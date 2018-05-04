@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Faithlife.Ananke.Logging;
 using Faithlife.Ananke.Logging.Internal;
 using Faithlife.Ananke.Services;
 using Microsoft.Extensions.Logging;
@@ -91,8 +90,12 @@ namespace Faithlife.Ananke
 				    m_done.Wait();
 			    });
 
-				// Log any unhandled exceptions.
-			    AppDomain.CurrentDomain.UnhandledException += (_, args) => m_log.UnhandledAppDomainException(args.ExceptionObject as Exception);
+				// Log any unhandled exceptions from the thread pool.
+			    AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+			    {
+				    m_log.UnhandledAppDomainException(args.ExceptionObject as Exception);
+					SetExitCode(c_unhandledAppDomainExceptionExitCode);
+			    };
 
 				// Exit after our maximum runtime.
 				ShutdownAfterMaximumRuntime();
@@ -111,8 +114,8 @@ namespace Faithlife.Ananke
 		    catch (Exception ex)
 		    {
 				m_log.UnhandledApplicationException(ex);
-				SetExitCode(c_unexpectedExceptionExitCode);
-			    return c_unexpectedExceptionExitCode;
+				SetExitCode(c_unhandledApplicationExceptionExitCode);
+			    return c_unhandledApplicationExceptionExitCode;
 		    }
 		    finally
 		    {
@@ -189,7 +192,8 @@ namespace Faithlife.Ananke
 	    private readonly object m_exitCodeMutex;
 
 	    private const int c_successExitCode = 0;
-		private const int c_unexpectedExceptionExitCode = 64;
-	    private const int c_exitTimeoutExitCode = 65;
+		private const int c_unhandledApplicationExceptionExitCode = 64;
+	    private const int c_unhandledAppDomainExceptionExitCode = 65;
+	    private const int c_exitTimeoutExitCode = 66;
     }
 }

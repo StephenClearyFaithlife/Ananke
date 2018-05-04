@@ -67,8 +67,9 @@ The actual shutdown time is randomly "fuzzed" a bit by default (see `AnankeSetti
 An Ananke process will return one of the following exit codes:
 
 * `0` - If the application logic returns without exception.
-* `64` - If the application logic threw an unhandled exception. Unhandled exceptions are logged before the process exits.
-* `65` - If the application logic was requested to shutdown, but did not do so within the exit timeout (see `AnankeSettings.ExitTimeout`).
+* `64` - If the application logic directly threw an unhandled exception. Unhandled exceptions are logged before the process exits.
+* `65` - If the application logic indirectly threw an unhandled exception (e.g., from a thread pool thread). Unhandled exceptions are logged before the process exits.
+* `66` - If the application logic was requested to shutdown, but did not do so within the exit timeout (see `AnankeSettings.ExitTimeout`).
 * (other) - If the application logic returns an `int`, then that value is used as the process exit code.
 
 Exit codes are returned by Ananke even if you use `static void Main` as your entrypoint.
@@ -85,7 +86,7 @@ Ananke listens to various signals based on OS:
 
 These are all treated the same: as a graceful stop request. When one of these signals is received, the `AnankeContext.ExitRequested` cancellation token is cancelled. When this token is cancelled, your code should stop taking on new work. It should complete the work it already has and then exit.
 
-When a signal comes in, Ananke will start a kill timer (see `AnankeSettings.ExitTimeout`). If the application code has not returned within that timeout, Ananke will exit the process with exit code `65`.
+When a signal comes in, Ananke will start a kill timer (see `AnankeSettings.ExitTimeout`). If the application code has not returned within that timeout, Ananke will exit the process with exit code `66`.
 
 ## Logs
 
