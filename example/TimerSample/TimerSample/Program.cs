@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Loader;
@@ -8,9 +8,9 @@ using Faithlife.Ananke;
 
 namespace TimerSample
 {
-    class Program
-    {
-	    private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromSeconds(30));
+	class Program
+	{
+		private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromSeconds(30));
 
 		static void Main() => AnankeRunner.Main(Settings, async context =>
 		{
