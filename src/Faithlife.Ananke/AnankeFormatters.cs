@@ -35,7 +35,7 @@ namespace Faithlife.Ananke
 			    sb.Append("(" + eventId.Id + ")");
 		    sb.Append(": ");
 		    foreach (var scopeMessage in scopeMessages)
-			    sb.Append(scopeMessage + ": ");
+			    sb.Append(Escaping.BackslashEscape(scopeMessage) + ": ");
 		    sb.Append(Escaping.BackslashEscape(message));
 		    if (exception != null)
 		    {
