@@ -97,8 +97,17 @@ Task("NuGetPackage")
 			DotNetCorePack(projectPath, new DotNetCorePackSettings { Configuration = configuration, NoBuild = true, NoRestore = true, OutputDirectory = "deploy", VersionSuffix = versionSuffix });
 	});
 
-Task("NuGetPublish")
+Task("NuGetPackageTests")
 	.IsDependentOn("NuGetPackage")
+	.Does(() =>
+	{
+		var firstProject = GetFiles("src/**/*.csproj").First().FullPath;
+		foreach (var nupkg in GetFiles("deploy/**/*.nupkg").Select(x => x.FullPath))
+			DotNetCoreTool(firstProject, "sourcelink", $"test {nupkg}");
+	});
+
+Task("NuGetPublish")
+	.IsDependentOn("NuGetPackageTests")
 	.Does(() =>
 	{
 		var nupkgPaths = GetFiles("deploy/*.nupkg").Select(x => x.FullPath).ToList();
@@ -129,6 +138,6 @@ Task("NuGetPublish")
 	});
 
 Task("Default")
-	.IsDependentOn("Test");
+	.IsDependentOn("NuGetPublish");
 
 RunTarget(target);
