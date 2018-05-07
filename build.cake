@@ -5,9 +5,10 @@ using System.Text.RegularExpressions;
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
-var nugetApiKey = Argument("nugetApiKey", "");
 var trigger = Argument("trigger", "");
 var versionSuffix = Argument("versionSuffix", "");
+
+var nugetApiKey = EnvironmentVariable("NUGETAPIKEY");
 
 var solutionFileName = GetFiles("*.sln").Single().GetFilename().ToString();
 var docsProjects = GetFiles("src/**/*.csproj").Select(x => x.GetFilenameWithoutExtension()).ToArray();
