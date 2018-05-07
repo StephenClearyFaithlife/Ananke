@@ -13,10 +13,10 @@ using Faithlife.Ananke;
 
 class Program
 {
-	static void Main(string[] args) => AnankeRunner.Main(AnankeSettings.Create(), context =>
-	{
-		Console.WriteLine("Hello World!");
-	});
+  static void Main(string[] args) => AnankeRunner.Main(AnankeSettings.Create(), context =>
+  {
+    Console.WriteLine("Hello World!");
+  });
 }
 ```
 
@@ -41,23 +41,23 @@ using Faithlife.Ananke;
 
 class Program
 {
-	private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromHours(2));
+  private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromHours(2));
 
-	static void Main(string[] args) => AnankeRunner.Main(Settings, async context =>
-	{
-		var logger = context.LoggerFactory.CreateLogger("MyApp");
+  static void Main(string[] args) => AnankeRunner.Main(Settings, async context =>
+  {
+    var logger = context.LoggerFactory.CreateLogger("MyApp");
 
-		while (!context.ExitRequested.IsCancellationRequested)
-		{
-			// Wait for the next work item to be available, and retrieve it.
-			// If we are requested to exit, then cancel the wait.
-			var workItem = await GetNextWorkItemAsync(context.ExitRequested);
+    while (!context.ExitRequested.IsCancellationRequested)
+    {
+      // Wait for the next work item to be available, and retrieve it.
+      // If we are requested to exit, then cancel the wait.
+      var workItem = await GetNextWorkItemAsync(context.ExitRequested);
 
-			// Process the work item. Ignore requests to exit.
-			logger.LogInformation("Processing {workItemId}", workItem.Id);
-			ProcessWorkItem(workItem);
-		}
-	});
+      // Process the work item. Ignore requests to exit.
+      logger.LogInformation("Processing {workItemId}", workItem.Id);
+      ProcessWorkItem(workItem);
+    }
+  });
 }
 ```
 
