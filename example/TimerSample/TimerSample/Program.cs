@@ -4,6 +4,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Loader;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Faithlife.Ananke;
 
 namespace TimerSample
@@ -14,13 +15,13 @@ namespace TimerSample
 
 		static void Main() => AnankeRunner.Main(Settings, async context =>
 		{
-			Console.SetOut(context.LoggingConsoleStdout);
-			Console.SetError(context.LoggingConsoleStdout);
+			// Normally this is injected by your DI container; this example just creates it directly.
+			var logger = context.LoggerFactory.CreateLogger<Program>();
 
 			while (true)
 			{
 				await Task.Delay(TimeSpan.FromSeconds(1), context.ExitRequested);
-				Console.WriteLine("Hello World!");
+				logger.LogInformation("Hello World!");
 			}
 		});
 	}

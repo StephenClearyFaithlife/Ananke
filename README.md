@@ -39,15 +39,16 @@ Taking these aspects into account, a more realistic example of Ananke usage is:
 ```C#
 using Faithlife.Ananke;
 
-class Program
+class MyProgram
 {
   private static readonly AnankeSettings Settings = AnankeSettings.Create(maximumRuntime: TimeSpan.FromHours(2));
 
   static void Main(string[] args) => AnankeRunner.Main(Settings, async context =>
   {
-    var logger = context.LoggerFactory.CreateLogger("MyApp");
+    // Normally loggers are created by dependency injection; this sample just creates it directly.
+    var logger = context.LoggerFactory.CreateLogger<MyProgram>();
 
-    while (!context.ExitRequested.IsCancellationRequested)
+    while (true)
     {
       // Wait for the next work item to be available, and retrieve it.
       // If we are requested to exit, then cancel the wait.
