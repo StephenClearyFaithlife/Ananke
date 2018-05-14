@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -26,7 +26,7 @@ namespace Faithlife.Ananke
 		public ILoggerFactory LoggerFactory { get; }
 
 		/// <summary>
-		/// The amonut of time application code has after it is requested to exit, before the process forcibly exits.
+		/// The amount of time application code has after it is requested to exit, before the process forcibly exits.
 		/// </summary>
 		public TimeSpan ExitTimeout { get; }
 
@@ -59,11 +59,11 @@ namespace Faithlife.Ananke
 		/// <summary>
 		/// Creates an instance of <see cref="AnankeSettings"/>, with default settings for any setting not specified.
 		/// </summary>
-		/// <param name="maximumRuntime">The amonut of time application code should run until it is requested to exit. Defaults to infinite, but most apps should use a non-infinite time.</param>
+		/// <param name="maximumRuntime">The amount of time application code should run until it is requested to exit. Defaults to infinite, but most apps should use a non-infinite time.</param>
 		/// <param name="loggerFactory">The core logging factory used by all structured logging. Defaults to a logging factory with a single provider that writes formatted text to <see cref="ConsoleLog"/>.</param>
 		/// <param name="loggerIsEnabledFilter">The filter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerFactory"/> is <c>null</c>.</param>
 		/// <param name="loggerFormatter">The formatter used by the <see cref="AnankeLoggerProvider"/> if <paramref name="loggerFactory"/> is <c>null</c>.</param>
-		/// <param name="exitTimeout">The amonut of time application code has after it is requested to exit, before the process forcibly exits. Defaults to 10 seconds.</param>
+		/// <param name="exitTimeout">The amount of time application code has after it is requested to exit, before the process forcibly exits. Defaults to 10 seconds.</param>
 		/// <param name="randomMaximumRuntimeRelativeDelta">The amount of random fluction in <see cref="MaximumRuntime"/>. E.g., <c>0.10</c> is a 10% change; if <see cref="MaximumRuntime"/> is 30 minutes, then the actual maximum runtime would be a random value between 27 and 33 minutes. Defaults to 0.10 (10%).</param>
 		/// <param name="stdoutParser">A method that parses text written to stdout.</param>
 		public static AnankeSettings Create(TimeSpan? maximumRuntime = null, ILoggerFactory loggerFactory = null,
